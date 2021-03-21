@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:gdt/Models/Questionary.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:firebase_auth/firebase_auth.dart';
+import 'package:gdt/Pages/Dashboard/FormCompletion/FormCompletion.dart';
 
 FirebaseFirestore firestore = FirebaseFirestore.instance;
 
@@ -25,24 +26,22 @@ class _MyFormsState extends State<MyForms> {
 
   void _prepareViewData() {
     _isShowLoading = true;
-    _formsCollection
-        .get()
-        .then((QuerySnapshot querySnapshot) => {
-              querySnapshot.docs.forEach((form) {
-                if (form["groupId"] != "") {
-                  _groupsCollection
-                      .doc(form["groupId"])
-                      .get()
-                      .then((doc) => {
-                            if (_isUserHasGruop(doc))
-                              {_forms.add(QuestionaryModel(form))}
-                          })
-                      .whenComplete(() => setState(() {
-                            _isShowLoading = false;
-                          }));
-                }
-              })
-            });
+    _formsCollection.get().then((QuerySnapshot querySnapshot) => {
+          querySnapshot.docs.forEach((form) {
+            if (form["groupId"] != "") {
+              _groupsCollection
+                  .doc(form["groupId"])
+                  .get()
+                  .then((doc) => {
+                        if (_isUserHasGruop(doc))
+                          {_forms.add(QuestionaryModel(form.id, form))}
+                      })
+                  .whenComplete(() => setState(() {
+                        _isShowLoading = false;
+                      }));
+            }
+          })
+        });
   }
 
   bool _isUserHasGruop(DocumentSnapshot group) {
@@ -75,19 +74,27 @@ class _MyFormsState extends State<MyForms> {
           padding: const EdgeInsets.all(8),
           itemCount: _forms.length,
           itemBuilder: (BuildContext context, int index) {
-            return Padding(
-                padding: const EdgeInsets.all(8.0),
-                child: new Container(
-                    decoration: new BoxDecoration(
-                        color: Colors.grey[200],
-                        borderRadius: new BorderRadius.only(
-                            topLeft: _listElementCornerRadius,
-                            topRight: _listElementCornerRadius,
-                            bottomLeft: _listElementCornerRadius,
-                            bottomRight: _listElementCornerRadius)),
-                    child: ListTile(
-                        title: Text(_forms[index].name),
-                        subtitle: Text(_forms[index].description))));
+            return GestureDetector(
+                child: Padding(
+                    padding: const EdgeInsets.all(8.0),
+                    child: new Container(
+                        decoration: new BoxDecoration(
+                            color: Colors.grey[200],
+                            borderRadius: new BorderRadius.only(
+                                topLeft: _listElementCornerRadius,
+                                topRight: _listElementCornerRadius,
+                                bottomLeft: _listElementCornerRadius,
+                                bottomRight: _listElementCornerRadius)),
+                        child: ListTile(
+                            title: Text(_forms[index].name),
+                            subtitle: Text(_forms[index].description)))),
+                onTap: () async {
+                  Navigator.push(
+                      context,
+                      MaterialPageRoute(
+                          builder: (BuildContext ctx) =>
+                              FormCompletion(_forms[index])));
+                });
           });
     }
   }
