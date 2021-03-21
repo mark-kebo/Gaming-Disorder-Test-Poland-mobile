@@ -50,8 +50,11 @@ class _LoginFormState extends State<LoginForm> {
         child: Column(
           mainAxisSize: MainAxisSize.min,
           children: [
-            Text('Gaming Disorder Test',
-                style: Theme.of(context).textTheme.headline4),
+            Padding(
+                padding: EdgeInsets.only(bottom: _formPadding),
+                child: Text('Gaming Disorder Test',
+                    textAlign: TextAlign.center,
+                    style: Theme.of(context).textTheme.headline4)),
             Padding(
               padding: EdgeInsets.all(_fieldPadding),
               child: TextFormField(
@@ -84,30 +87,32 @@ class _LoginFormState extends State<LoginForm> {
                   obscureText: true),
             ),
             Padding(
-              padding: EdgeInsets.only(top: _formPadding),
+              padding: EdgeInsets.only(top: _formPadding * 2),
               child: _isShowLoading
                   ? CircularProgressIndicator()
-                  : FlatButton(
-                      color: Colors.deepPurple,
-                      shape: RoundedRectangleBorder(
-                        borderRadius: BorderRadius.circular(32.0),
-                      ),
-                      onPressed: () async {
-                        if (_formKey.currentState.validate()) {
-                          _signInAction();
-                        }
-                      },
-                      child: Padding(
-                        padding: EdgeInsets.only(
-                            left: _formPadding * 2,
-                            right: _formPadding * 2,
-                            top: _fieldPadding * 2,
-                            bottom: _fieldPadding * 2),
-                        child: Text('Zaloguj',
-                            style:
-                                TextStyle(fontSize: 18, color: Colors.white)),
-                      ),
-                    ),
+                  : SizedBox(
+                      width: double.infinity,
+                      child: FlatButton(
+                        color: Colors.deepPurple,
+                        shape: RoundedRectangleBorder(
+                          borderRadius: BorderRadius.circular(32.0),
+                        ),
+                        onPressed: () async {
+                          if (_formKey.currentState.validate()) {
+                            _signInAction();
+                          }
+                        },
+                        child: Padding(
+                          padding: EdgeInsets.only(
+                              left: _formPadding * 2,
+                              right: _formPadding * 2,
+                              top: _fieldPadding * 2,
+                              bottom: _fieldPadding * 2),
+                          child: Text('Zaloguj',
+                              style:
+                                  TextStyle(fontSize: 18, color: Colors.white)),
+                        ),
+                      )),
             ),
             Padding(
               padding: EdgeInsets.only(top: _formPadding),

@@ -68,8 +68,11 @@ class _CreateAccountFormState extends State<CreateAccountForm> {
         child: Column(
           mainAxisSize: MainAxisSize.min,
           children: [
-            Text('Tworzenie nowego konta',
-                style: Theme.of(context).textTheme.headline4),
+            Padding(
+                padding: EdgeInsets.only(bottom: _formPadding),
+                child: Text('Tworzenie nowego konta',
+                    textAlign: TextAlign.center,
+                    style: Theme.of(context).textTheme.headline4)),
             Padding(
               padding: EdgeInsets.all(_fieldPadding),
               child: TextFormField(
@@ -114,30 +117,32 @@ class _CreateAccountFormState extends State<CreateAccountForm> {
                   obscureText: true),
             ),
             Padding(
-              padding: EdgeInsets.only(top: _formPadding),
+              padding: EdgeInsets.only(top: _formPadding * 2),
               child: _isShowLoading
                   ? CircularProgressIndicator()
-                  : FlatButton(
-                      color: Colors.deepPurple,
-                      shape: RoundedRectangleBorder(
-                        borderRadius: BorderRadius.circular(32.0),
-                      ),
-                      onPressed: () async {
-                        if (_formKey.currentState.validate()) {
-                          _createAccountAction();
-                        }
-                      },
-                      child: Padding(
-                        padding: EdgeInsets.only(
-                            left: _formPadding * 2,
-                            right: _formPadding * 2,
-                            top: _fieldPadding * 2,
-                            bottom: _fieldPadding * 2),
-                        child: Text('Utworz',
-                            style:
-                                TextStyle(fontSize: 18, color: Colors.white)),
-                      ),
-                    ),
+                  : SizedBox(
+                      width: double.infinity,
+                      child: FlatButton(
+                        color: Colors.deepPurple,
+                        shape: RoundedRectangleBorder(
+                          borderRadius: BorderRadius.circular(32.0),
+                        ),
+                        onPressed: () async {
+                          if (_formKey.currentState.validate()) {
+                            _createAccountAction();
+                          }
+                        },
+                        child: Padding(
+                          padding: EdgeInsets.only(
+                              left: _formPadding * 2,
+                              right: _formPadding * 2,
+                              top: _fieldPadding * 2,
+                              bottom: _fieldPadding * 2),
+                          child: Text('Utworz',
+                              style:
+                                  TextStyle(fontSize: 18, color: Colors.white)),
+                        ),
+                      )),
             ),
           ],
         ),
