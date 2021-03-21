@@ -62,7 +62,7 @@ class _SettingsState extends State<Settings> {
                     key: _formKey,
                     child: TextFormField(
                         controller: _nameController,
-                        decoration: InputDecoration(hintText: 'Imię'),
+                        decoration: InputDecoration(labelText: 'Imię'),
                         validator: (String value) {
                           if (value.isEmpty) {
                             return 'Podaj imię';

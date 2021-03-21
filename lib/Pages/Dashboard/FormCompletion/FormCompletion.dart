@@ -65,56 +65,59 @@ class _FormCompletionState extends State<FormCompletion> {
 
   Widget _formWidget() {
     return Expanded(
-        child: Padding(
-            padding: EdgeInsets.only(bottom: _formPadding),
-            child: Container(
-                width: double.maxFinite,
-                height: double.maxFinite,
-                padding: EdgeInsets.all(_formPadding),
-                decoration: new BoxDecoration(
-                    color: Colors.grey[200],
-                    borderRadius: new BorderRadius.only(
-                        topLeft: _containerCornerRadius,
-                        topRight: _containerCornerRadius,
-                        bottomLeft: _containerCornerRadius,
-                        bottomRight: _containerCornerRadius)),
-                child: new Stack(children: <Widget>[
-                  Padding(
-                      padding: EdgeInsets.only(bottom: _formPadding),
-                      child: Text(
-                          (_currentQuestionId + 1).toString() +
-                              ". " +
-                              _questionaryModel.questions[_currentQuestionId]
-                                  .questionController.text,
-                          style: TextStyle(fontSize: 18, color: Colors.black))),
-                  Form(
-                    child: _questionsList(),
-                  ),
-                  Visibility(
-                    child: Align(
-                        alignment: FractionalOffset.bottomLeft,
-                        child: MaterialButton(
-                            color: Colors.deepPurple,
-                            textColor: Colors.white,
-                            child: Icon(Icons.arrow_back_rounded),
-                            padding: EdgeInsets.all(16),
-                            shape: CircleBorder(),
-                            onPressed: () {})),
-                    visible: _currentQuestionId != 0,
-                  ),
-                  Align(
-                      alignment: FractionalOffset.bottomRight,
-                      child: MaterialButton(
-                          color: Colors.deepPurple,
-                          textColor: Colors.white,
-                          child: Icon(_currentQuestionId !=
-                                  _questionaryModel.questions.length
-                              ? Icons.arrow_forward_rounded
-                              : Icons.done),
-                          padding: EdgeInsets.all(16),
-                          shape: CircleBorder(),
-                          onPressed: () {}))
-                ]))));
+        child: Container(
+            width: double.maxFinite,
+            height: double.maxFinite,
+            padding: EdgeInsets.all(_formPadding),
+            decoration: new BoxDecoration(
+                color: Colors.grey[200],
+                borderRadius: new BorderRadius.only(
+                    topLeft: _containerCornerRadius,
+                    topRight: _containerCornerRadius,
+                    bottomLeft: _containerCornerRadius,
+                    bottomRight: _containerCornerRadius)),
+            child: new Stack(children: <Widget>[
+              new Column(
+                  crossAxisAlignment: CrossAxisAlignment.start,
+                  children: <Widget>[
+                    Padding(
+                        padding: EdgeInsets.only(bottom: _formPadding),
+                        child: Text(
+                            (_currentQuestionId + 1).toString() +
+                                ". " +
+                                _questionaryModel.questions[_currentQuestionId]
+                                    .questionController.text,
+                            style:
+                                TextStyle(fontSize: 18, color: Colors.black))),
+                    Form(
+                      child: _questionsList(),
+                    )
+                  ]),
+              Visibility(
+                child: Align(
+                    alignment: FractionalOffset.bottomLeft,
+                    child: MaterialButton(
+                        color: Colors.deepPurple,
+                        textColor: Colors.white,
+                        child: Icon(Icons.arrow_back_rounded),
+                        padding: EdgeInsets.all(16),
+                        shape: CircleBorder(),
+                        onPressed: () {})),
+                visible: _currentQuestionId != 0,
+              ),
+              Align(
+                  alignment: FractionalOffset.bottomRight,
+                  child: MaterialButton(
+                      color: Colors.deepPurple,
+                      textColor: Colors.white,
+                      child: Icon(_currentQuestionId + 1 !=
+                              _questionaryModel.questions.length
+                          ? Icons.arrow_forward_rounded
+                          : Icons.done),
+                      padding: EdgeInsets.all(16),
+                      shape: CircleBorder(),
+                      onPressed: () {}))
+            ])));
   }
 
   Widget _questionsList() {
@@ -138,13 +141,37 @@ class _FormCompletionState extends State<FormCompletion> {
     return Text("Brak pytań");
   }
 
-  Widget _likertScaleWidget() {}
+  Widget _likertScaleWidget() {
+    return Text("Brak pytań");
+  }
 
-  Widget _paragraphWidget() {}
+  Widget _paragraphWidget() {
+    return Expanded(
+        child: Container(
+            height: double.infinity,
+            margin: EdgeInsets.only(bottom: _formPadding * 2),
+            child: TextField(
+              keyboardType: TextInputType.text,
+              maxLines: null,
+              decoration: InputDecoration(
+                  border: InputBorder.none,
+                  focusedBorder: InputBorder.none,
+                  enabledBorder: InputBorder.none,
+                  errorBorder: InputBorder.none,
+                  disabledBorder: InputBorder.none,
+                  hintText: 'Wpisz swoją odpowiedź'),
+            )));
+  }
 
-  Widget _multipleChoiseWidget() {}
+  Widget _multipleChoiseWidget() {
+    return Text("Brak pytań");
+  }
 
-  Widget _singleChoiseWidget() {}
+  Widget _singleChoiseWidget() {
+    return Text("Brak pytań");
+  }
 
-  Widget _sliderWidget() {}
+  Widget _sliderWidget() {
+    return Text("Brak pytań");
+  }
 }

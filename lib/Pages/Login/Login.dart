@@ -59,7 +59,7 @@ class _LoginFormState extends State<LoginForm> {
               padding: EdgeInsets.all(_fieldPadding),
               child: TextFormField(
                   controller: _emailController,
-                  decoration: InputDecoration(hintText: 'Email'),
+                  decoration: InputDecoration(labelText: 'Email'),
                   validator: (String value) {
                     bool emailValid = RegExp(
                             r"^[a-zA-Z0-9.a-zA-Z0-9.!#$%&'*+-/=?^_`{|}~]+@[a-zA-Z0-9]+\.[a-zA-Z]+")
@@ -74,7 +74,7 @@ class _LoginFormState extends State<LoginForm> {
               padding: EdgeInsets.all(_fieldPadding),
               child: TextFormField(
                   controller: _passwordController,
-                  decoration: InputDecoration(hintText: 'Hasło'),
+                  decoration: InputDecoration(labelText: 'Hasło'),
                   validator: (String value) {
                     if (value.isEmpty) {
                       return 'Podaj hasło';
