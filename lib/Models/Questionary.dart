@@ -1,7 +1,7 @@
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:flutter/material.dart';
 
-class Questionary {
+class QuestionaryModel {
   String name = "";
   String description = "";
   String groupId = "";
@@ -9,7 +9,7 @@ class Questionary {
 
   List<QuestionaryFieldType> questions = <QuestionaryFieldType>[];
 
-  Questionary(DocumentSnapshot snapshot) {
+  QuestionaryModel(DocumentSnapshot snapshot) {
     if (snapshot != null) {
       name = snapshot.data()["name"];
       description = snapshot.data()["description"];

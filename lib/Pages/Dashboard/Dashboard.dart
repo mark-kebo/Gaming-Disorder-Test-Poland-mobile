@@ -1,10 +1,7 @@
 import 'package:flutter/material.dart';
-
-import 'package:firebase_auth/firebase_auth.dart';
 import 'package:gdt/Pages/Dashboard/Tabs/MyForms.dart';
-import 'package:shared_preferences/shared_preferences.dart';
-import 'package:gdt/Pages/Login/login.dart';
-import 'package:gdt/Helpers/Alert.dart';
+import 'package:gdt/Pages/Dashboard/Tabs/Settings.dart';
+import 'package:gdt/Pages/Dashboard/Tabs/CompletedForms.dart';
 
 class _DashboardTabItem {
   String name;
@@ -16,15 +13,12 @@ class _DashboardTabItem {
   }
 }
 
-final FirebaseAuth _auth = FirebaseAuth.instance;
-
 class Dashboard extends StatefulWidget {
   @override
   State<StatefulWidget> createState() => _DashboardState();
 }
 
 class _DashboardState extends State<Dashboard> {
-  final AlertController alertController = AlertController();
   int _currentIndex = 0;
   List<_DashboardTabItem> _children = [];
 
@@ -34,9 +28,8 @@ class _DashboardState extends State<Dashboard> {
 
   void _prepareViewData() {
     _children.add(_DashboardTabItem('Dostępne ankiety', MyForms()));
-    _children
-        .add(_DashboardTabItem('Wykonane ankiety', Text('Wykonane ankiety')));
-    _children.add(_DashboardTabItem('Ustawienia', Text('Ustawienia')));
+    _children.add(_DashboardTabItem('Wykonane ankiety', CompletedForms()));
+    _children.add(_DashboardTabItem('Ustawienia', Settings()));
   }
 
   @override
@@ -49,18 +42,10 @@ class _DashboardState extends State<Dashboard> {
         home: Scaffold(
             body: _children[_currentIndex].element,
             appBar: AppBar(
-                backgroundColor: Colors.white,
-                title: Text(_children[_currentIndex].name,
-                    style: TextStyle(fontSize: 20, color: Colors.deepPurple)),
-                actions: <Widget>[
-                  IconButton(
-                    color: Colors.deepPurple,
-                    onPressed: () async {
-                      _showLogoutAlert();
-                    },
-                    icon: const Icon(Icons.logout),
-                  ),
-                ]),
+              backgroundColor: Colors.white,
+              title: Text(_children[_currentIndex].name,
+                  style: TextStyle(fontSize: 20, color: Colors.deepPurple)),
+            ),
             bottomNavigationBar: BottomNavigationBar(
               onTap: _onTabTapped,
               currentIndex: _currentIndex,
@@ -83,21 +68,5 @@ class _DashboardState extends State<Dashboard> {
     setState(() {
       _currentIndex = index;
     });
-  }
-
-  void _showLogoutAlert() {
-    alertController.showMessageDialogWithAction(
-        context, "Wyloguj się", "Czy na pewno chcesz się wylogować?", () async {
-      _logoutAction();
-    });
-  }
-
-  Future<void> _logoutAction() async {
-    _auth.signOut();
-    SharedPreferences prefs = await SharedPreferences.getInstance();
-    prefs.remove('email');
-    prefs.remove('password');
-    Navigator.pushReplacement(
-        context, MaterialPageRoute(builder: (BuildContext ctx) => Login()));
   }
 }

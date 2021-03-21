@@ -1,9 +1,9 @@
-class CompletedForm {
+class CompletedFormModel {
   String id = "";
   String name = "";
   List<CompletedFormQuestion> questions = <CompletedFormQuestion>[];
 
-  CompletedForm(dynamic object) {
+  CompletedFormModel(dynamic object) {
     id = object["id"];
     name = object["name"];
     questions = (object["questions"] as List).map((e) => CompletedFormQuestion(e)).toList();

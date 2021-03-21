@@ -12,7 +12,7 @@ class MyForms extends StatefulWidget {
 }
 
 class _MyFormsState extends State<MyForms> {
-  List<Questionary> _forms = <Questionary>[];
+  List<QuestionaryModel> _forms = <QuestionaryModel>[];
   final FirebaseAuth firebaseAuth = FirebaseAuth.instance;
   CollectionReference _formsCollection = firestore.collection('forms');
   CollectionReference _groupsCollection = firestore.collection('user_groups');
@@ -35,17 +35,12 @@ class _MyFormsState extends State<MyForms> {
                       .get()
                       .then((doc) => {
                             if (_isUserHasGruop(doc))
-                              {_forms.add(Questionary(form))}
+                              {_forms.add(QuestionaryModel(form))}
                           })
                       .whenComplete(() => setState(() {
                             _isShowLoading = false;
                           }));
                 }
-              })
-            })
-        .whenComplete(() => {
-              setState(() {
-                _isShowLoading = false;
               })
             });
   }

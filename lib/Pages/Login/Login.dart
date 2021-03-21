@@ -112,7 +112,7 @@ class _LoginFormState extends State<LoginForm> {
             Padding(
               padding: EdgeInsets.only(top: _formPadding),
               child: FlatButton(
-                color: Colors.white,
+                color: Colors.transparent,
                 shape: RoundedRectangleBorder(
                   borderRadius: BorderRadius.circular(32.0),
                 ),
