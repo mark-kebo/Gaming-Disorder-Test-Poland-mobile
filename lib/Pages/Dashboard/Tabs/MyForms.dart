@@ -3,6 +3,7 @@ import 'package:gdt/Models/Questionary.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:gdt/Pages/Dashboard/FormCompletion/FormCompletion.dart';
+import 'package:gdt/Models/CompletedForm.dart';
 
 FirebaseFirestore firestore = FirebaseFirestore.instance;
 
@@ -14,34 +15,64 @@ class MyForms extends StatefulWidget {
 
 class _MyFormsState extends State<MyForms> {
   List<QuestionaryModel> _forms = <QuestionaryModel>[];
+  List<CompletedFormModel> _completedForms = <CompletedFormModel>[];
   final FirebaseAuth firebaseAuth = FirebaseAuth.instance;
   CollectionReference _formsCollection = firestore.collection('forms');
+  CollectionReference _usersCollection = firestore.collection('users');
   CollectionReference _groupsCollection = firestore.collection('user_groups');
   Radius _listElementCornerRadius = const Radius.circular(16.0);
   bool _isShowLoading = false;
 
-  _MyFormsState() {
+  @override
+  void initState() {
+    super.initState();
     _prepareViewData();
   }
 
   void _prepareViewData() {
     _isShowLoading = true;
-    _formsCollection.get().then((QuerySnapshot querySnapshot) => {
-          querySnapshot.docs.forEach((form) {
-            if (form["groupId"] != "") {
-              _groupsCollection
-                  .doc(form["groupId"])
-                  .get()
-                  .then((doc) => {
-                        if (_isUserHasGruop(doc))
-                          {_forms.add(QuestionaryModel(form.id, form))}
-                      })
-                  .whenComplete(() => setState(() {
-                        _isShowLoading = false;
-                      }));
-            }
-          })
-        });
+    _usersCollection
+        .get()
+        .then((QuerySnapshot querySnapshot) => {
+              querySnapshot.docs.forEach((doc) {
+                if (doc["id"] == firebaseAuth.currentUser.uid) {
+                  setState(() {
+                    (doc["completedForms"] as List)
+                        .map((e) => CompletedFormModel(e))
+                        .toList()
+                        .forEach((element) {
+                      _completedForms.add(element);
+                    });
+                  });
+                }
+              })
+            })
+        .whenComplete(() => {
+              _formsCollection.get().then((QuerySnapshot querySnapshot) => {
+                    querySnapshot.docs.forEach((form) {
+                      var isNotCompleted = _completedForms
+                          .where((element) => element.id == form.id)
+                          .isEmpty;
+                      if (isNotCompleted) {
+                        if (form["groupId"] != "") {
+                          _groupsCollection
+                              .doc(form["groupId"])
+                              .get()
+                              .then((doc) => {
+                                    if (_isUserHasGruop(doc))
+                                      {
+                                        _forms.add(
+                                            QuestionaryModel(form.id, form))
+                                      }
+                                  })
+                              .whenComplete(() => setState(() {
+                                    _isShowLoading = false;
+                                  }));
+                        }
+                      }
+                    })
+                  })
+            });
   }
 
   bool _isUserHasGruop(DocumentSnapshot group) {
@@ -55,7 +86,6 @@ class _MyFormsState extends State<MyForms> {
         }
       });
     }
-
     return isGroupHasUser;
   }
 

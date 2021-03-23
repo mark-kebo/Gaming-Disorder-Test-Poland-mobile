@@ -115,9 +115,11 @@ class ParagraphFormField extends QuestionaryFieldType {
   );
   String keyQuestion = "";
   String keyQuestionOption = "";
+  List<TextEditingController> optionsControllers = <TextEditingController>[];
 
   ParagraphFormField(dynamic item) {
     if (item != null) {
+      optionsControllers.add(TextEditingController());
       questionController.text = item["question"];
       keyQuestion = item['keyQuestion'];
       keyQuestionOption = item['keyQuestionOption'];

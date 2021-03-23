@@ -20,6 +20,14 @@ class CompletedFormModel {
         .map((e) => CompletedFormQuestion.fromQuestionaryFieldType(e))
         .toList();
   }
+
+  Map itemsList() {
+    return {
+      "id": this.id,
+      "name": this.name,
+      "questions": this.questions.map((e) => e.itemsList()).toList()
+    };
+  }
 }
 
 class CompletedFormQuestion {
@@ -27,12 +35,19 @@ class CompletedFormQuestion {
   List<String> selectedOptions = <String>[];
 
   CompletedFormQuestion(dynamic object) {
-    name = object["name"];
+    name = object["question"];
     selectedOptions =
         (object["selectedOptions"] as List).map((e) => e as String).toList();
   }
 
   CompletedFormQuestion.fromQuestionaryFieldType(QuestionaryFieldType field) {
     name = field.name;
+  }
+
+  Map itemsList() {
+    return {
+      "name": this.name,
+      "selectedOptions": this.selectedOptions.map((e) => e).toList()
+    };
   }
 }
