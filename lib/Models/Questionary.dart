@@ -64,6 +64,7 @@ abstract class QuestionaryFieldType {
   Icon icon;
   String keyQuestion = "";
   String keyQuestionOption = "";
+  int minQuestionTime = 0;
 }
 
 class LikertScaleFormField extends QuestionaryFieldType {
@@ -76,8 +77,6 @@ class LikertScaleFormField extends QuestionaryFieldType {
     Icons.linear_scale,
     color: Colors.deepPurple,
   );
-  String keyQuestion = "";
-  String keyQuestionOption = "";
 
   LikertScaleFormField(dynamic item) {
     if (item != null) {
@@ -89,6 +88,7 @@ class LikertScaleFormField extends QuestionaryFieldType {
       keyQuestion = item['keyQuestion'];
       keyQuestionOption = item['keyQuestionOption'];
       questionController.text = item["question"];
+      minQuestionTime = item["minTime"];
     }
   }
 
@@ -99,7 +99,8 @@ class LikertScaleFormField extends QuestionaryFieldType {
       "name": this.name,
       "options": this.optionsControllers.map((e) => e.text),
       "keyQuestion": this.keyQuestion,
-      "keyQuestionOption": this.keyQuestionOption
+      "keyQuestionOption": this.keyQuestionOption,
+      "minTime": this.minQuestionTime
     };
   }
 }
@@ -113,8 +114,6 @@ class ParagraphFormField extends QuestionaryFieldType {
     Icons.format_align_left_outlined,
     color: Colors.deepPurple,
   );
-  String keyQuestion = "";
-  String keyQuestionOption = "";
   List<TextEditingController> optionsControllers = <TextEditingController>[];
 
   ParagraphFormField(dynamic item) {
@@ -123,6 +122,7 @@ class ParagraphFormField extends QuestionaryFieldType {
       questionController.text = item["question"];
       keyQuestion = item['keyQuestion'];
       keyQuestionOption = item['keyQuestionOption'];
+      minQuestionTime = item["minTime"];
     }
   }
 
@@ -132,7 +132,8 @@ class ParagraphFormField extends QuestionaryFieldType {
       "question": this.questionController.text,
       "name": this.name,
       "keyQuestion": this.keyQuestion,
-      "keyQuestionOption": this.keyQuestionOption
+      "keyQuestionOption": this.keyQuestionOption,
+      "minTime": this.minQuestionTime
     };
   }
 }
@@ -147,8 +148,6 @@ class MultipleChoiseFormField extends QuestionaryFieldType {
     Icons.check_box_outlined,
     color: Colors.deepPurple,
   );
-  String keyQuestion = "";
-  String keyQuestionOption = "";
 
   MultipleChoiseFormField(dynamic item) {
     if (item != null) {
@@ -160,6 +159,7 @@ class MultipleChoiseFormField extends QuestionaryFieldType {
       questionController.text = item["question"];
       keyQuestion = item['keyQuestion'];
       keyQuestionOption = item['keyQuestionOption'];
+      minQuestionTime = item["minTime"];
     }
   }
 
@@ -170,7 +170,8 @@ class MultipleChoiseFormField extends QuestionaryFieldType {
       "name": this.name,
       "options": this.optionsControllers.map((e) => e.text),
       "keyQuestion": this.keyQuestion,
-      "keyQuestionOption": this.keyQuestionOption
+      "keyQuestionOption": this.keyQuestionOption,
+      "minTime": this.minQuestionTime
     };
   }
 }
@@ -186,8 +187,6 @@ class SingleChoiseFormField extends QuestionaryFieldType {
     color: Colors.deepPurple,
   );
   bool isKeyQuestion = false;
-  String keyQuestion = "";
-  String keyQuestionOption = "";
 
   SingleChoiseFormField(dynamic item) {
     if (item != null) {
@@ -200,6 +199,7 @@ class SingleChoiseFormField extends QuestionaryFieldType {
       keyQuestion = item['keyQuestion'];
       keyQuestionOption = item['keyQuestionOption'];
       isKeyQuestion = item["isKeyQuestion"];
+      minQuestionTime = item["minTime"];
     }
   }
 
@@ -211,7 +211,8 @@ class SingleChoiseFormField extends QuestionaryFieldType {
       "isKeyQuestion": this.isKeyQuestion,
       "options": this.optionsControllers.map((e) => e.text),
       "keyQuestion": this.keyQuestion,
-      "keyQuestionOption": this.keyQuestionOption
+      "keyQuestionOption": this.keyQuestionOption,
+      "minTime": this.minQuestionTime
     };
   }
 }
@@ -227,8 +228,6 @@ class SliderFormField extends QuestionaryFieldType {
     Icons.toggle_on_outlined,
     color: Colors.deepPurple,
   );
-  String keyQuestion = "";
-  String keyQuestionOption = "";
 
   SliderFormField(dynamic item) {
     if (item != null) {
@@ -237,6 +236,7 @@ class SliderFormField extends QuestionaryFieldType {
       questionController.text = item["question"];
       keyQuestion = item['keyQuestion'];
       keyQuestionOption = item['keyQuestionOption'];
+      minQuestionTime = item["minTime"];
     }
   }
 
@@ -248,7 +248,8 @@ class SliderFormField extends QuestionaryFieldType {
       "maxValue": this.maxValueController.text,
       "minValue": this.minValueController.text,
       "keyQuestion": this.keyQuestion,
-      "keyQuestionOption": this.keyQuestionOption
+      "keyQuestionOption": this.keyQuestionOption,
+      "minTime": this.minQuestionTime
     };
   }
 }

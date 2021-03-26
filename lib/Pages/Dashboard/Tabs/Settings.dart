@@ -153,7 +153,14 @@ class _SettingsState extends State<Settings> {
                                       fontSize: 16, color: Colors.redAccent)),
                             ),
                           ),
-                        )
+                        ),
+                        Text("Pomoc",
+                            style: TextStyle(
+                                fontSize: 16,
+                                color: Colors.black,
+                                fontWeight: FontWeight.bold)),
+                        Text("Email: test@test.pl"),
+                        Text("Tel.: +123 45 677")
                       ],
                     ),
                   ),

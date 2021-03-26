@@ -1,3 +1,5 @@
+import 'dart:async';
+
 import 'package:flutter/material.dart';
 import 'package:gdt/Models/Questionary.dart';
 import 'package:gdt/Models/CompletedForm.dart';
@@ -76,6 +78,12 @@ class _FormCompletionState extends State<FormCompletion> {
   }
 
   Widget _formWidget() {
+    var seconds = _questionaryModel.questions[_currentQuestionId].minQuestionTime;
+    Timer(Duration(seconds: seconds), () {
+      print(seconds);
+      print("isSoFast = false");
+      _completedFormModel.questions[_currentQuestionId].isSoFast = false;
+    });
     return Expanded(
         child: Container(
             width: double.maxFinite,

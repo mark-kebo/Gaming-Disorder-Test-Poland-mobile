@@ -32,10 +32,12 @@ class CompletedFormModel {
 
 class CompletedFormQuestion {
   String name = "";
+  bool isSoFast = true;
   List<String> selectedOptions = <String>[];
 
   CompletedFormQuestion(dynamic object) {
     name = object["question"];
+    isSoFast = object["isSoFast"];
     selectedOptions =
         (object["selectedOptions"] as List).map((e) => e as String).toList();
   }
@@ -47,6 +49,7 @@ class CompletedFormQuestion {
   Map itemsList() {
     return {
       "name": this.name,
+      "isSoFast": this.isSoFast,
       "selectedOptions": this.selectedOptions.map((e) => e).toList()
     };
   }
