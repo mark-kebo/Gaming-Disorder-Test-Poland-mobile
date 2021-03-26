@@ -228,9 +228,11 @@ class SliderFormField extends QuestionaryFieldType {
     Icons.toggle_on_outlined,
     color: Colors.deepPurple,
   );
+  List<TextEditingController> optionsControllers = <TextEditingController>[];
 
   SliderFormField(dynamic item) {
     if (item != null) {
+      optionsControllers.add(TextEditingController());
       maxValueController.text = item["maxValue"];
       minValueController.text = item["minValue"];
       questionController.text = item["question"];

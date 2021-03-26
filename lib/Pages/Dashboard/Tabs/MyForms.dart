@@ -119,6 +119,7 @@ class _MyFormsState extends State<MyForms> {
                             title: Text(_forms[index].name),
                             subtitle: Text(_forms[index].description)))),
                 onTap: () async {
+                  print(_forms[index]);
                   Navigator.push(
                       context,
                       MaterialPageRoute(

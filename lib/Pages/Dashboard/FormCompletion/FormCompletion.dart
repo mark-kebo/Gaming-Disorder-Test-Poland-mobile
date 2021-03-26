@@ -32,6 +32,7 @@ class _FormCompletionState extends State<FormCompletion> {
   CompletedFormModel _completedFormModel;
   QuestionaryModel _questionaryModel;
   final AlertController alertController = AlertController();
+  Timer _timer;
 
   int _currentQuestionId = 0;
   bool _isShowLoading = false;
@@ -78,12 +79,15 @@ class _FormCompletionState extends State<FormCompletion> {
   }
 
   Widget _formWidget() {
-    var seconds = _questionaryModel.questions[_currentQuestionId].minQuestionTime;
-    Timer(Duration(seconds: seconds), () {
-      print(seconds);
-      print("isSoFast = false");
-      _completedFormModel.questions[_currentQuestionId].isSoFast = false;
-    });
+    if (_completedFormModel.questions[_currentQuestionId].isSoFast) {
+      var seconds =
+          _questionaryModel.questions[_currentQuestionId].minQuestionTime;
+      _timer = Timer(Duration(seconds: seconds), () {
+        print(seconds);
+        print("isSoFast = false");
+        _completedFormModel.questions[_currentQuestionId].isSoFast = false;
+      });
+    }
     return Expanded(
         child: Container(
             width: double.maxFinite,
@@ -144,6 +148,7 @@ class _FormCompletionState extends State<FormCompletion> {
                           padding: EdgeInsets.all(16),
                           shape: CircleBorder(),
                           onPressed: () {
+                            _timer.cancel();
                             if (_currentQuestionId + 1 ==
                                 _questionaryModel.questions.length) {
                               if (_formKey.currentState.validate()) {
@@ -151,10 +156,12 @@ class _FormCompletionState extends State<FormCompletion> {
                                 _completeForm();
                               }
                             } else {
-                              setState(() {
-                                _saveAnswer();
-                                ++_currentQuestionId;
-                              });
+                              if (_formKey.currentState.validate()) {
+                                setState(() {
+                                  _saveAnswer();
+                                  ++_currentQuestionId;
+                                });
+                              }
                             }
                           }))
             ])));
@@ -182,7 +189,30 @@ class _FormCompletionState extends State<FormCompletion> {
   }
 
   Widget _likertScaleWidget() {
-    return Text("Brak pytań");
+    var questionary = _questionaryModel.questions[_currentQuestionId];
+    var completedModel = _completedFormModel.questions[_currentQuestionId];
+    return Expanded(
+        child: ListView.builder(
+            itemCount: questionary.optionsControllers.length,
+            itemBuilder: (BuildContext context, int index) {
+              return Padding(
+                  padding: const EdgeInsets.all(8.0),
+                  child: new Container(
+                      child: CheckboxListTile(
+                          value: completedModel.selectedOptions.contains(
+                              questionary.optionsControllers[index].text),
+                          onChanged: (value) {
+                            setState(() {
+                              completedModel.selectedOptions = [];
+                              if (value) {
+                                completedModel.selectedOptions.add(
+                                    questionary.optionsControllers[index].text);
+                              }
+                            });
+                          },
+                          title: Text(
+                              questionary.optionsControllers[index].text))));
+            }));
   }
 
   Widget _paragraphWidget() {
@@ -212,15 +242,102 @@ class _FormCompletionState extends State<FormCompletion> {
   }
 
   Widget _multipleChoiseWidget() {
-    return Text("Brak pytań");
+    var questionary = _questionaryModel.questions[_currentQuestionId];
+    var completedModel = _completedFormModel.questions[_currentQuestionId];
+    return Expanded(
+        child: ListView.builder(
+            itemCount: questionary.optionsControllers.length,
+            itemBuilder: (BuildContext context, int index) {
+              return Padding(
+                  padding: const EdgeInsets.all(8.0),
+                  child: new Container(
+                      child: CheckboxListTile(
+                          value: completedModel.selectedOptions.contains(
+                              questionary.optionsControllers[index].text),
+                          onChanged: (value) {
+                            setState(() {
+                              if (completedModel.selectedOptions.contains(
+                                  questionary.optionsControllers[index].text)) {
+                                completedModel.selectedOptions.remove(
+                                    questionary.optionsControllers[index].text);
+                              } else {
+                                completedModel.selectedOptions.add(
+                                    questionary.optionsControllers[index].text);
+                              }
+                            });
+                          },
+                          title: Text(
+                              questionary.optionsControllers[index].text))));
+            }));
   }
 
   Widget _singleChoiseWidget() {
-    return Text("Brak pytań");
+    var questionary = _questionaryModel.questions[_currentQuestionId];
+    var completedModel = _completedFormModel.questions[_currentQuestionId];
+    return Expanded(
+        child: ListView.builder(
+            itemCount: questionary.optionsControllers.length,
+            itemBuilder: (BuildContext context, int index) {
+              return Padding(
+                  padding: const EdgeInsets.all(8.0),
+                  child: new Container(
+                      child: CheckboxListTile(
+                          value: completedModel.selectedOptions.contains(
+                              questionary.optionsControllers[index].text),
+                          onChanged: (value) {
+                            setState(() {
+                              completedModel.selectedOptions = [];
+                              if (value) {
+                                completedModel.selectedOptions.add(
+                                    questionary.optionsControllers[index].text);
+                              }
+                            });
+                          },
+                          title: Text(
+                              questionary.optionsControllers[index].text))));
+            }));
   }
 
   Widget _sliderWidget() {
-    return Text("Brak pytań");
+    double maxValue = 10;
+    double minValue = 0;
+    double value = 0;
+    var questionary =
+        _questionaryModel.questions[_currentQuestionId] as SliderFormField;
+    if (_completedFormModel.questions[_currentQuestionId].selectedOptions !=
+            null &&
+        _completedFormModel
+            .questions[_currentQuestionId].selectedOptions.isNotEmpty) {
+      value = double.parse(_completedFormModel
+          .questions[_currentQuestionId].selectedOptions.first);
+    }
+    return Column(children: [
+      Slider(
+        value: value,
+        min: minValue,
+        max: maxValue,
+        divisions: maxValue.toInt(),
+        label: value.round().toString(),
+        onChanged: (double value) {
+          setState(() {
+            _completedFormModel.questions[_currentQuestionId].selectedOptions =
+                [value.toString()];
+          });
+        },
+      ),
+      Row(children: [
+        Expanded(
+            flex: 5,
+            child: Align(
+                alignment: FractionalOffset.centerLeft,
+                child: Text(questionary.minValueController.text))),
+        Expanded(
+            flex: 5,
+            child: Align(
+                alignment: FractionalOffset.centerRight,
+                child: Text(questionary.maxValueController.text)))
+      ])
+    ]);
   }
 
   void _completeForm() {
