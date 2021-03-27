@@ -33,6 +33,7 @@ class _FormCompletionState extends State<FormCompletion> {
   QuestionaryModel _questionaryModel;
   final AlertController alertController = AlertController();
   Timer _timer;
+  GlobalKey<ScaffoldState> _scaffoldKey = GlobalKey<ScaffoldState>();
 
   int _currentQuestionId = 0;
   bool _isShowLoading = false;
@@ -55,6 +56,7 @@ class _FormCompletionState extends State<FormCompletion> {
           primarySwatch: Colors.deepPurple,
         ),
         home: Scaffold(
+            key: _scaffoldKey,
             body: Padding(
                 padding: EdgeInsets.all(_formPadding),
                 child: new Column(children: <Widget>[
@@ -149,19 +151,25 @@ class _FormCompletionState extends State<FormCompletion> {
                           shape: CircleBorder(),
                           onPressed: () {
                             _timer.cancel();
-                            if (_currentQuestionId + 1 ==
-                                _questionaryModel.questions.length) {
-                              if (_formKey.currentState.validate()) {
+                            if (isFormValid()) {
+                              if (_currentQuestionId + 1 ==
+                                  _questionaryModel.questions.length) {
                                 _saveAnswer();
                                 _completeForm();
-                              }
-                            } else {
-                              if (_formKey.currentState.validate()) {
+                              } else {
                                 setState(() {
                                   _saveAnswer();
                                   ++_currentQuestionId;
                                 });
                               }
+                            } else if (_questionaryModel
+                                    .questions[_currentQuestionId].type !=
+                                QuestionaryFieldAbstract.paragraph) {
+                              ScaffoldMessenger.of(_scaffoldKey.currentContext)
+                                  .showSnackBar(const SnackBar(
+                                content:
+                                    Text('Należy wybrać jedną z odpowiedzi'),
+                              ));
                             }
                           }))
             ])));
@@ -301,16 +309,18 @@ class _FormCompletionState extends State<FormCompletion> {
   Widget _sliderWidget() {
     double maxValue = 10;
     double minValue = 0;
-    double value = 0;
     var questionary =
         _questionaryModel.questions[_currentQuestionId] as SliderFormField;
     if (_completedFormModel.questions[_currentQuestionId].selectedOptions !=
             null &&
         _completedFormModel
             .questions[_currentQuestionId].selectedOptions.isNotEmpty) {
-      value = double.parse(_completedFormModel
-          .questions[_currentQuestionId].selectedOptions.first);
+    } else {
+      _completedFormModel.questions[_currentQuestionId].selectedOptions
+          .add(minValue.toString());
     }
+    var value = double.parse(_completedFormModel
+        .questions[_currentQuestionId].selectedOptions.first);
     return Column(children: [
       Slider(
         value: value,
@@ -398,6 +408,18 @@ class _FormCompletionState extends State<FormCompletion> {
         break;
       case QuestionaryFieldAbstract.slider:
         // return _sliderWidget();
+        break;
+    }
+  }
+
+  bool isFormValid() {
+    switch (_questionaryModel.questions[_currentQuestionId].type) {
+      case QuestionaryFieldAbstract.paragraph:
+        return _formKey.currentState.validate();
+        break;
+      default:
+        return _completedFormModel
+            .questions[_currentQuestionId].selectedOptions.isNotEmpty;
         break;
     }
   }
