@@ -1,3 +1,5 @@
+import 'dart:async';
+
 import 'package:flutter/material.dart';
 import 'package:gdt/Models/Questionary.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
@@ -48,30 +50,39 @@ class _MyFormsState extends State<MyForms> {
               })
             })
         .whenComplete(() => {
-              _formsCollection.get().then((QuerySnapshot querySnapshot) => {
-                    querySnapshot.docs.forEach((form) {
-                      var isNotCompleted = _completedForms
-                          .where((element) => element.id == form.id)
-                          .isEmpty;
-                      if (isNotCompleted) {
-                        if (form["groupId"] != "") {
-                          _groupsCollection
-                              .doc(form["groupId"])
-                              .get()
-                              .then((doc) => {
-                                    if (_isUserHasGruop(doc))
-                                      {
-                                        _forms.add(
-                                            QuestionaryModel(form.id, form))
-                                      }
-                                  })
-                              .whenComplete(() => setState(() {
-                                    _isShowLoading = false;
-                                  }));
-                        }
-                      }
-                    })
-                  })
+              _formsCollection
+                  .get()
+                  .then((QuerySnapshot querySnapshot) => {
+                        querySnapshot.docs.forEach((form) async {
+                          var isNotCompleted = _completedForms
+                              .where((element) => element.id == form.id)
+                              .isEmpty;
+                          if (isNotCompleted) {
+                            if (form["groupId"] != "") {
+                              await _groupsCollection
+                                  .doc(form["groupId"])
+                                  .get()
+                                  .then((doc) => {
+                                        if (_isUserHasGruop(doc))
+                                          {
+                                            _forms.add(
+                                                QuestionaryModel(form.id, form))
+                                          }
+                                      })
+                                  .whenComplete(() => setState(() {
+                                        _isShowLoading = false;
+                                      }));
+                            }
+                          }
+                        })
+                      })
+                  .whenComplete(() => {
+                        Timer(Duration(seconds: 2), () {
+                          setState(() {
+                            _isShowLoading = false;
+                          });
+                        })
+                      })
             });
   }
 
@@ -79,7 +90,7 @@ class _MyFormsState extends State<MyForms> {
     var isGroupHasUser = false;
     var users = group.data()["selectedUsers"];
     if (users != null) {
-      users.forEach((element) {
+      users.forEach((element) async {
         if (element == firebaseAuth.currentUser.uid) {
           print(firebaseAuth.currentUser.uid);
           isGroupHasUser = true;
