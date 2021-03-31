@@ -7,9 +7,9 @@
   "client": [
     {
       "client_info": {
-        "mobilesdk_app_id": "1:1033420313424:android:b833a796a46420ba8e1255",
+        "mobilesdk_app_id": "1:1033420313424:android:c25fcc4472ec87f08e1255",
         "android_client_info": {
-          "package_name": "com.example.gdt"
+          "package_name": "com.vorozhbicki.gdt"
         }
       },
       "oauth_client": [
