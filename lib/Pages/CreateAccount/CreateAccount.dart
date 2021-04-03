@@ -2,6 +2,8 @@ import 'package:flutter/material.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:gdt/Helpers/Alert.dart';
+import 'package:gdt/Helpers/Constants.dart';
+import 'package:gdt/Helpers/Strings.dart';
 import 'package:gdt/Pages/Dashboard/Dashboard.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 
@@ -47,7 +49,7 @@ class _CreateAccountFormState extends State<CreateAccountForm> {
   final _passwordController = TextEditingController();
   final FirebaseAuth firebaseAuth = FirebaseAuth.instance;
 
-  CollectionReference _users = firestore.collection('users');
+  CollectionReference _users = firestore.collection(ProjectConstants.usersCollectionName);
 
   final AlertController alertController = AlertController();
 
@@ -61,7 +63,8 @@ class _CreateAccountFormState extends State<CreateAccountForm> {
   }
 
   Widget _bodyForm() {
-    return Form(
+    return SingleChildScrollView(
+        child: Form(
       key: _formKey,
       child: Padding(
         padding: EdgeInsets.all(_formPadding),
@@ -70,17 +73,17 @@ class _CreateAccountFormState extends State<CreateAccountForm> {
           children: [
             Padding(
                 padding: EdgeInsets.only(bottom: _formPadding),
-                child: Text('Tworzenie nowego konta',
+                child: Text(ProjectStrings.createNewAccount,
                     textAlign: TextAlign.center,
                     style: Theme.of(context).textTheme.headline4)),
             Padding(
               padding: EdgeInsets.all(_fieldPadding),
               child: TextFormField(
                   controller: _nameController,
-                  decoration: InputDecoration(labelText: 'Imię'),
+                  decoration: InputDecoration(labelText: ProjectStrings.name),
                   validator: (String value) {
                     if (value.isEmpty) {
-                      return 'Podaj imię';
+                      return ProjectStrings.emptyName;
                     }
                     return null;
                   }),
@@ -89,13 +92,12 @@ class _CreateAccountFormState extends State<CreateAccountForm> {
               padding: EdgeInsets.all(_fieldPadding),
               child: TextFormField(
                   controller: _emailController,
-                  decoration: InputDecoration(labelText: 'Email'),
+                  decoration: InputDecoration(labelText: ProjectStrings.email),
                   validator: (String value) {
-                    bool emailValid = RegExp(
-                            r"^[a-zA-Z0-9.a-zA-Z0-9.!#$%&'*+-/=?^_`{|}~]+@[a-zA-Z0-9]+\.[a-zA-Z]+")
-                        .hasMatch(value);
+                    bool emailValid =
+                        ProjectConstants.emailRegExp.hasMatch(value);
                     if (!emailValid || value.isEmpty) {
-                      return 'Podaj adres email';
+                      return ProjectStrings.emailNotValid;
                     }
                     return null;
                   }),
@@ -104,13 +106,13 @@ class _CreateAccountFormState extends State<CreateAccountForm> {
               padding: EdgeInsets.all(_fieldPadding),
               child: TextFormField(
                   controller: _passwordController,
-                  decoration: InputDecoration(labelText: 'Hasło'),
+                  decoration: InputDecoration(labelText: ProjectStrings.password),
                   validator: (String value) {
                     if (value.isEmpty) {
-                      return 'Podaj hasło';
+                      return ProjectStrings.emptyPassword;
                     }
                     if (value.length < 6) {
-                      return 'Hasło musi mieć co najmniej 6 znaków';
+                      return ProjectStrings.passwordNotValid;
                     }
                     return null;
                   },
@@ -138,7 +140,7 @@ class _CreateAccountFormState extends State<CreateAccountForm> {
                               right: _formPadding * 2,
                               top: _fieldPadding * 2,
                               bottom: _fieldPadding * 2),
-                          child: Text('Utworz',
+                          child: Text(ProjectStrings.create,
                               style:
                                   TextStyle(fontSize: 18, color: Colors.white)),
                         ),
@@ -147,7 +149,7 @@ class _CreateAccountFormState extends State<CreateAccountForm> {
           ],
         ),
       ),
-    );
+    ));
   }
 
   @override
@@ -170,8 +172,8 @@ class _CreateAccountFormState extends State<CreateAccountForm> {
         password: _passwordController.text,
       );
       SharedPreferences prefs = await SharedPreferences.getInstance();
-      prefs.setString('email', _emailController.text);
-      prefs.setString('password', _passwordController.text);
+      prefs.setString(ProjectConstants.prefsEmail, _emailController.text);
+      prefs.setString(ProjectConstants.prefsPassword, _passwordController.text);
       await _auth.signInWithEmailAndPassword(
         email: _emailController.text,
         password: _passwordController.text,
@@ -180,14 +182,14 @@ class _CreateAccountFormState extends State<CreateAccountForm> {
         'name': _nameController.text,
         "id": _auth.currentUser.uid
       }).catchError((error) =>
-          alertController.showMessageDialog(context, "Błąd", error.message));
+          alertController.showMessageDialog(context, ProjectStrings.error, error.message));
       Navigator.pushReplacement(context,
           MaterialPageRoute(builder: (BuildContext ctx) => Dashboard()));
       setState(() {
         _isShowLoading = false;
       });
     } catch (error) {
-      alertController.showMessageDialog(context, "Błąd", error.message);
+      alertController.showMessageDialog(context, ProjectStrings.error, error.message);
       setState(() {
         _isShowLoading = false;
       });

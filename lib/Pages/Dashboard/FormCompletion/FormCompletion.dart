@@ -1,6 +1,8 @@
 import 'dart:async';
 
 import 'package:flutter/material.dart';
+import 'package:gdt/Helpers/Constants.dart';
+import 'package:gdt/Helpers/Strings.dart';
 import 'package:gdt/Models/Questionary.dart';
 import 'package:gdt/Models/CompletedForm.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
@@ -26,7 +28,8 @@ class FormCompletion extends StatefulWidget {
 class _FormCompletionState extends State<FormCompletion> {
   double _formPadding = 24.0;
   Radius _containerCornerRadius = const Radius.circular(16.0);
-  CollectionReference _usersCollection = firestore.collection('users');
+  CollectionReference _usersCollection =
+      firestore.collection(ProjectConstants.usersCollectionName);
   final FirebaseAuth _firebaseAuth = FirebaseAuth.instance;
   final GlobalKey<FormState> _formKey = GlobalKey<FormState>();
   CompletedFormModel _completedFormModel;
@@ -34,6 +37,9 @@ class _FormCompletionState extends State<FormCompletion> {
   final AlertController alertController = AlertController();
   Timer _timer;
   GlobalKey<ScaffoldState> _scaffoldKey = GlobalKey<ScaffoldState>();
+  var _snackBar = SnackBar(
+    content: Text(ProjectStrings.chooseAnswers),
+  );
 
   int _currentQuestionId = 0;
   bool _isShowLoading = false;
@@ -51,7 +57,7 @@ class _FormCompletionState extends State<FormCompletion> {
   @override
   Widget build(BuildContext context) {
     return MaterialApp(
-        title: 'Gaming Disorder Test Poland',
+        title: ProjectStrings.projectName,
         theme: ThemeData(
           primarySwatch: Colors.deepPurple,
         ),
@@ -166,10 +172,7 @@ class _FormCompletionState extends State<FormCompletion> {
                                     .questions[_currentQuestionId].type !=
                                 QuestionaryFieldAbstract.paragraph) {
                               ScaffoldMessenger.of(_scaffoldKey.currentContext)
-                                  .showSnackBar(const SnackBar(
-                                content:
-                                    Text('Należy wybrać jedną z odpowiedzi'),
-                              ));
+                                  .showSnackBar(_snackBar);
                             }
                           }))
             ])));
@@ -193,7 +196,7 @@ class _FormCompletionState extends State<FormCompletion> {
         return _sliderWidget();
         break;
     }
-    return Text("Brak pytań");
+    return Text(ProjectStrings.noQuestions);
   }
 
   Widget _likertScaleWidget() {
@@ -231,7 +234,7 @@ class _FormCompletionState extends State<FormCompletion> {
             child: TextFormField(
               validator: (String value) {
                 if (value.isEmpty) {
-                  return 'Odpowiedź nie może być pusta';
+                  return ProjectStrings.answerCannotBeEmpty;
                 }
                 return null;
               },
@@ -245,7 +248,7 @@ class _FormCompletionState extends State<FormCompletion> {
                   enabledBorder: InputBorder.none,
                   errorBorder: InputBorder.none,
                   disabledBorder: InputBorder.none,
-                  hintText: 'Wpisz swoją odpowiedź'),
+                  hintText: ProjectStrings.enterYourAnswer),
             )));
   }
 
@@ -369,7 +372,7 @@ class _FormCompletionState extends State<FormCompletion> {
               _usersCollection
                   .doc(currentUserId)
                   .update({
-                    'completedForms':
+                    ProjectConstants.completedFormsCollectionName:
                         FieldValue.arrayUnion([_completedFormModel.itemsList()])
                   })
                   .then((value) => setState(() {
@@ -382,7 +385,7 @@ class _FormCompletionState extends State<FormCompletion> {
                       }))
                   .catchError((error) => {
                         alertController.showMessageDialog(
-                            context, "Błąd", error.message),
+                            context, ProjectStrings.error, error.message),
                         setState(() {
                           _isShowLoading = false;
                         })
@@ -392,22 +395,12 @@ class _FormCompletionState extends State<FormCompletion> {
 
   void _saveAnswer() {
     switch (_questionaryModel.questions[_currentQuestionId].type) {
-      case QuestionaryFieldAbstract.likertScale:
-        // return _likertScaleWidget();
-        break;
       case QuestionaryFieldAbstract.paragraph:
         _completedFormModel.questions[_currentQuestionId].selectedOptions.add(
             _questionaryModel
                 .questions[_currentQuestionId].optionsControllers.first.text);
         break;
-      case QuestionaryFieldAbstract.multipleChoise:
-        // return _multipleChoiseWidget();
-        break;
-      case QuestionaryFieldAbstract.singleChoise:
-        // return _singleChoiseWidget();
-        break;
-      case QuestionaryFieldAbstract.slider:
-        // return _sliderWidget();
+      default:
         break;
     }
   }

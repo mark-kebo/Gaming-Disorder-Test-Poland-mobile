@@ -1,6 +1,8 @@
 import 'dart:async';
 
 import 'package:flutter/material.dart';
+import 'package:gdt/Helpers/Constants.dart';
+import 'package:gdt/Helpers/Strings.dart';
 import 'package:gdt/Models/Questionary.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:firebase_auth/firebase_auth.dart';
@@ -19,9 +21,9 @@ class _MyFormsState extends State<MyForms> {
   List<QuestionaryModel> _forms = <QuestionaryModel>[];
   List<CompletedFormModel> _completedForms = <CompletedFormModel>[];
   final FirebaseAuth firebaseAuth = FirebaseAuth.instance;
-  CollectionReference _formsCollection = firestore.collection('forms');
-  CollectionReference _usersCollection = firestore.collection('users');
-  CollectionReference _groupsCollection = firestore.collection('user_groups');
+  CollectionReference _formsCollection = firestore.collection(ProjectConstants.formsCollectionName);
+  CollectionReference _usersCollection = firestore.collection(ProjectConstants.usersCollectionName);
+  CollectionReference _groupsCollection = firestore.collection(ProjectConstants.groupsCollectionName);
   Radius _listElementCornerRadius = const Radius.circular(16.0);
   bool _isShowLoading = false;
 
@@ -39,7 +41,7 @@ class _MyFormsState extends State<MyForms> {
               querySnapshot.docs.forEach((doc) {
                 if (doc["id"] == firebaseAuth.currentUser.uid) {
                   setState(() {
-                    (doc["completedForms"] as List)
+                    (doc[ProjectConstants.completedFormsCollectionName] as List)
                         .map((e) => CompletedFormModel(e))
                         .toList()
                         .forEach((element) {
@@ -88,7 +90,7 @@ class _MyFormsState extends State<MyForms> {
 
   bool _isUserHasGruop(DocumentSnapshot group) {
     var isGroupHasUser = false;
-    var users = group.data()["selectedUsers"];
+    var users = group.data()[ProjectConstants.selectedUsersCollectionName];
     if (users != null) {
       users.forEach((element) async {
         if (element == firebaseAuth.currentUser.uid) {
@@ -109,7 +111,7 @@ class _MyFormsState extends State<MyForms> {
     if (_isShowLoading) {
       return Center(child: CircularProgressIndicator());
     } else if (_forms.isEmpty) {
-      return Center(child: Text("Nie masz w tej chwili dostępnych ankiet"));
+      return Center(child: Text(ProjectStrings.dontHaveSurveys));
     } else {
       return ListView.builder(
           padding: const EdgeInsets.all(8),

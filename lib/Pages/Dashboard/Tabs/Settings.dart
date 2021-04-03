@@ -1,6 +1,8 @@
 import 'package:flutter/material.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:firebase_auth/firebase_auth.dart';
+import 'package:gdt/Helpers/Constants.dart';
+import 'package:gdt/Helpers/Strings.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 import 'package:gdt/Pages/Login/login.dart';
 import 'package:gdt/Helpers/Alert.dart';
@@ -15,7 +17,8 @@ class Settings extends StatefulWidget {
 
 class _SettingsState extends State<Settings> {
   final FirebaseAuth _auth = FirebaseAuth.instance;
-  CollectionReference _usersCollection = firestore.collection('users');
+  CollectionReference _usersCollection =
+      firestore.collection(ProjectConstants.usersCollectionName);
   final AlertController alertController = AlertController();
   final _nameController = TextEditingController();
   final GlobalKey<FormState> _formKey = GlobalKey<FormState>();
@@ -62,10 +65,11 @@ class _SettingsState extends State<Settings> {
                     key: _formKey,
                     child: TextFormField(
                         controller: _nameController,
-                        decoration: InputDecoration(labelText: 'Imię'),
+                        decoration:
+                            InputDecoration(labelText: ProjectStrings.name),
                         validator: (String value) {
                           if (value.isEmpty) {
-                            return 'Podaj imię';
+                            return ProjectStrings.emptyName;
                           }
                           return null;
                         }),
@@ -102,7 +106,7 @@ class _SettingsState extends State<Settings> {
                                             right: _formPadding * 2,
                                             top: _fieldPadding * 2,
                                             bottom: _fieldPadding * 2),
-                                        child: Text('Zapisz',
+                                        child: Text(ProjectStrings.save,
                                             style: TextStyle(
                                                 fontSize: 18,
                                                 color: Colors.white)),
@@ -125,7 +129,7 @@ class _SettingsState extends State<Settings> {
                                   right: _formPadding,
                                   top: _fieldPadding,
                                   bottom: _fieldPadding),
-                              child: Text('Wyloguj się',
+                              child: Text(ProjectStrings.logout,
                                   style: TextStyle(
                                       fontSize: 16,
                                       color: Colors.deepPurpleAccent)),
@@ -148,19 +152,12 @@ class _SettingsState extends State<Settings> {
                                   right: _formPadding,
                                   top: _fieldPadding,
                                   bottom: _fieldPadding),
-                              child: Text('Usuń konto',
+                              child: Text(ProjectStrings.deleteAccount,
                                   style: TextStyle(
                                       fontSize: 16, color: Colors.redAccent)),
                             ),
                           ),
-                        ),
-                        Text("Pomoc",
-                            style: TextStyle(
-                                fontSize: 16,
-                                color: Colors.black,
-                                fontWeight: FontWeight.bold)),
-                        Text("Email: test@test.pl"),
-                        Text("Tel.: +123 45 677")
+                        )
                       ],
                     ),
                   ),
@@ -186,7 +183,8 @@ class _SettingsState extends State<Settings> {
               _isShowLoading = false;
             }))
         .catchError((error) => {
-              alertController.showMessageDialog(context, "Error", error),
+              alertController.showMessageDialog(
+                  context, ProjectStrings.error, error),
               setState(() {
                 _isShowLoading = false;
               })
@@ -195,14 +193,17 @@ class _SettingsState extends State<Settings> {
 
   void _showLogoutAlert() {
     alertController.showMessageDialogWithAction(
-        context, "Wyloguj się", "Czy na pewno chcesz się wylogować?", () async {
+        context, ProjectStrings.logout, ProjectStrings.logoutQuestion,
+        () async {
       _logoutAction();
     });
   }
 
   void _showDeleteAccountAlert() {
     alertController.showMessageDialogWithAction(
-        context, "Usuń konto", "Czy na pewno chcesz usunąć konto?", () async {
+        context,
+        ProjectStrings.deleteAccount,
+        ProjectStrings.deleteAccountQuestion, () async {
       _deleteAccountAction();
     });
   }
@@ -210,8 +211,8 @@ class _SettingsState extends State<Settings> {
   Future<void> _logoutAction() async {
     _auth.signOut();
     SharedPreferences prefs = await SharedPreferences.getInstance();
-    prefs.remove('email');
-    prefs.remove('password');
+    prefs.remove(ProjectConstants.prefsEmail);
+    prefs.remove(ProjectConstants.prefsPassword);
     Navigator.pushReplacement(
         context, MaterialPageRoute(builder: (BuildContext ctx) => Login()));
   }
@@ -227,13 +228,14 @@ class _SettingsState extends State<Settings> {
               _auth.currentUser.delete();
               _isShowLoading = false;
               SharedPreferences prefs = await SharedPreferences.getInstance();
-              prefs.remove('email');
-              prefs.remove('password');
+              prefs.remove(ProjectConstants.prefsEmail);
+              prefs.remove(ProjectConstants.prefsPassword);
               Navigator.pushReplacement(context,
                   MaterialPageRoute(builder: (BuildContext ctx) => Login()));
             }))
         .catchError((error) => {
-              alertController.showMessageDialog(context, "Error", error),
+              alertController.showMessageDialog(
+                  context, ProjectStrings.error, error),
               setState(() {
                 _isShowLoading = false;
               })

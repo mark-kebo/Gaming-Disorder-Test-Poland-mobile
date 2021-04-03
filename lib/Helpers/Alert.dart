@@ -1,10 +1,11 @@
 import 'package:flutter/material.dart';
+import 'package:gdt/Helpers/Strings.dart';
 
 class AlertController {
   void showMessageDialog(
       BuildContext context, String titleText, String bodyText) {
     Widget okButton = FlatButton(
-      child: Text("OK"),
+      child: Text(ProjectStrings.ok),
       onPressed: () {
         Navigator.of(context, rootNavigator: true).pop();
       },
@@ -25,14 +26,14 @@ class AlertController {
   void showMessageDialogWithAction(BuildContext context, String titleText,
       String bodyText, Function okAction) {
     Widget okButton = FlatButton(
-      child: Text("OK"),
+      child: Text(ProjectStrings.ok),
       onPressed: () {
         Navigator.of(context, rootNavigator: true).pop();
         okAction();
       },
     );
     Widget cancelButton = FlatButton(
-      child: Text("Cancel"),
+      child: Text(ProjectStrings.cancel),
       onPressed: () {
         Navigator.of(context, rootNavigator: true).pop();
       },

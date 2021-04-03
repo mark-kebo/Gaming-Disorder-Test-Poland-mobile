@@ -1,4 +1,6 @@
 import 'package:flutter/material.dart';
+import 'package:gdt/Helpers/Constants.dart';
+import 'package:gdt/Helpers/Strings.dart';
 import 'package:gdt/Models/CompletedForm.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:firebase_auth/firebase_auth.dart';
@@ -14,7 +16,7 @@ class CompletedForms extends StatefulWidget {
 class _CompletedFormsState extends State<CompletedForms> {
   List<CompletedFormModel> _forms = <CompletedFormModel>[];
   final FirebaseAuth firebaseAuth = FirebaseAuth.instance;
-  CollectionReference _usersCollection = firestore.collection('users');
+  CollectionReference _usersCollection = firestore.collection(ProjectConstants.usersCollectionName);
   Radius _listElementCornerRadius = const Radius.circular(16.0);
   bool _isShowLoading = false;
 
@@ -30,7 +32,7 @@ class _CompletedFormsState extends State<CompletedForms> {
               querySnapshot.docs.forEach((doc) {
                 if (doc["id"] == firebaseAuth.currentUser.uid) {
                   setState(() {
-                    (doc["completedForms"] as List)
+                    (doc[ProjectConstants.completedFormsCollectionName] as List)
                         .map((e) => CompletedFormModel(e))
                         .toList()
                         .forEach((element) {
@@ -56,7 +58,7 @@ class _CompletedFormsState extends State<CompletedForms> {
     if (_isShowLoading) {
       return Center(child: CircularProgressIndicator());
     } else if (_forms.isEmpty) {
-      return Center(child: Text("Nie masz w tej chwili wykonanych ankiet"));
+      return Center(child: Text(ProjectStrings.dontHaveCompletedSurveys));
     } else {
       return ListView.builder(
           padding: const EdgeInsets.all(8),

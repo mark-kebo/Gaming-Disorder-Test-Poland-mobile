@@ -1,4 +1,6 @@
 import 'package:flutter/material.dart';
+import 'package:gdt/Helpers/Alert.dart';
+import 'package:gdt/Helpers/Strings.dart';
 import 'package:gdt/Pages/Dashboard/Tabs/MyForms.dart';
 import 'package:gdt/Pages/Dashboard/Tabs/Settings.dart';
 import 'package:gdt/Pages/Dashboard/Tabs/CompletedForms.dart';
@@ -21,28 +23,41 @@ class Dashboard extends StatefulWidget {
 class _DashboardState extends State<Dashboard> {
   int _currentIndex = 0;
   List<_DashboardTabItem> _children = [];
+  final AlertController alertController = AlertController();
 
   _DashboardState() {
     _prepareViewData();
   }
 
   void _prepareViewData() {
-    _children.add(_DashboardTabItem('Dostępne ankiety', MyForms()));
-    _children.add(_DashboardTabItem('Wykonane ankiety', CompletedForms()));
-    _children.add(_DashboardTabItem('Ustawienia', Settings()));
+    _children.add(_DashboardTabItem(ProjectStrings.myForms, MyForms()));
+    _children.add(
+        _DashboardTabItem(ProjectStrings.completedForms, CompletedForms()));
+    _children.add(_DashboardTabItem(ProjectStrings.settings, Settings()));
   }
 
   @override
   Widget build(BuildContext context) {
     return MaterialApp(
-        title: 'Gaming Disorder Test Poland',
+        title: ProjectStrings.projectName,
         theme: ThemeData(
           primarySwatch: Colors.deepPurple,
         ),
         home: Scaffold(
+            resizeToAvoidBottomInset: false,
             body: _children[_currentIndex].element,
             appBar: AppBar(
               backgroundColor: Colors.white,
+              actions: [
+                FlatButton(
+                  textColor: Colors.deepPurple,
+                  onPressed: () async {
+                    alertController.showMessageDialog(
+                        context, ProjectStrings.help, ProjectStrings.helpData);
+                  },
+                  child: Icon(Icons.help_outline_rounded),
+                ),
+              ],
               title: Text(_children[_currentIndex].name,
                   style: TextStyle(fontSize: 20, color: Colors.deepPurple)),
             ),
