@@ -21,6 +21,15 @@ class QuestionaryModel {
     }
   }
 
+  QuestionaryModel.copyFrom(QuestionaryModel questionary) {
+    this.id = questionary.id;
+    this.name = questionary.name;
+    this.description = questionary.name;
+    this.groupId = questionary.groupId;
+    this.groupName = questionary.groupName;
+    this.questions = questionary.questions.map((e) => e).toList();
+  }
+
   void initQuestions(DocumentSnapshot snapshot) {
     for (var form in snapshot.data()['questions']) {
       var field;

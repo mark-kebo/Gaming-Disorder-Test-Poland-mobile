@@ -34,6 +34,7 @@ class _FormCompletionState extends State<FormCompletion> {
   final GlobalKey<FormState> _formKey = GlobalKey<FormState>();
   CompletedFormModel _completedFormModel;
   QuestionaryModel _questionaryModel;
+  QuestionaryModel _filtredQuestionaryModel;
   final AlertController alertController = AlertController();
   Timer _timer;
   GlobalKey<ScaffoldState> _scaffoldKey = GlobalKey<ScaffoldState>();
@@ -50,8 +51,13 @@ class _FormCompletionState extends State<FormCompletion> {
   }
 
   void _prepareViewData() {
+    this._filtredQuestionaryModel =
+        QuestionaryModel.copyFrom(_questionaryModel);
+    _filtredQuestionaryModel.questions.removeWhere((element) =>
+        (element.keyQuestion ?? "").isNotEmpty &&
+        (element.keyQuestionOption ?? "").isNotEmpty);
     _completedFormModel =
-        new CompletedFormModel.fromQuestionaryModel(_questionaryModel);
+        new CompletedFormModel.fromQuestionaryModel(_filtredQuestionaryModel);
   }
 
   @override
@@ -68,7 +74,7 @@ class _FormCompletionState extends State<FormCompletion> {
                 child: new Column(children: <Widget>[
                   Padding(
                       padding: EdgeInsets.only(bottom: _formPadding),
-                      child: Text(_questionaryModel.description ?? "",
+                      child: Text(_filtredQuestionaryModel.description ?? "",
                           style:
                               TextStyle(fontSize: 16, color: Colors.black87))),
                   _formWidget()
@@ -91,16 +97,16 @@ class _FormCompletionState extends State<FormCompletion> {
                   Navigator.pop(context);
                 },
               ),
-              title: Text(_questionaryModel.name,
+              title: Text(_filtredQuestionaryModel.name,
                   style: TextStyle(fontSize: 20, color: Colors.deepPurple)),
             )));
   }
 
   Widget _formWidget() {
     if (_completedFormModel.questions[_currentQuestionId].isSoFast) {
-      var seconds =
-          _questionaryModel.questions[_currentQuestionId].minQuestionTime ??
-              ProjectConstants.defaultQuestionSec;
+      var seconds = _filtredQuestionaryModel
+              .questions[_currentQuestionId].minQuestionTime ??
+          ProjectConstants.defaultQuestionSec;
       _timer = Timer(Duration(seconds: seconds), () {
         print(seconds);
         print("isSoFast = false");
@@ -128,8 +134,10 @@ class _FormCompletionState extends State<FormCompletion> {
                         child: Text(
                             (_currentQuestionId + 1).toString() +
                                 ". " +
-                                _questionaryModel.questions[_currentQuestionId]
-                                    .questionController.text,
+                                _filtredQuestionaryModel
+                                    .questions[_currentQuestionId]
+                                    .questionController
+                                    .text,
                             style:
                                 TextStyle(fontSize: 18, color: Colors.black))),
                     Form(
@@ -161,7 +169,7 @@ class _FormCompletionState extends State<FormCompletion> {
                           color: Colors.deepPurple,
                           textColor: Colors.white,
                           child: Icon(_currentQuestionId + 1 !=
-                                  _questionaryModel.questions.length
+                                  _filtredQuestionaryModel.questions.length
                               ? Icons.arrow_forward_rounded
                               : Icons.done),
                           padding: EdgeInsets.all(16),
@@ -170,7 +178,7 @@ class _FormCompletionState extends State<FormCompletion> {
                             _timer.cancel();
                             if (isFormValid()) {
                               if (_currentQuestionId + 1 ==
-                                  _questionaryModel.questions.length) {
+                                  _filtredQuestionaryModel.questions.length) {
                                 _saveAnswer();
                                 _completeForm();
                               } else {
@@ -179,7 +187,7 @@ class _FormCompletionState extends State<FormCompletion> {
                                   ++_currentQuestionId;
                                 });
                               }
-                            } else if (_questionaryModel
+                            } else if (_filtredQuestionaryModel
                                     .questions[_currentQuestionId].type !=
                                 QuestionaryFieldAbstract.paragraph) {
                               ScaffoldMessenger.of(_scaffoldKey.currentContext)
@@ -190,7 +198,7 @@ class _FormCompletionState extends State<FormCompletion> {
   }
 
   Widget _questionsList() {
-    switch (_questionaryModel.questions[_currentQuestionId].type) {
+    switch (_filtredQuestionaryModel.questions[_currentQuestionId].type) {
       case QuestionaryFieldAbstract.likertScale:
         return _likertScaleWidget();
         break;
@@ -211,7 +219,7 @@ class _FormCompletionState extends State<FormCompletion> {
   }
 
   Widget _likertScaleWidget() {
-    var questionary = _questionaryModel.questions[_currentQuestionId];
+    var questionary = _filtredQuestionaryModel.questions[_currentQuestionId];
     var completedModel = _completedFormModel.questions[_currentQuestionId];
     return Expanded(
         child: ListView.builder(
@@ -249,7 +257,7 @@ class _FormCompletionState extends State<FormCompletion> {
                 }
                 return null;
               },
-              controller: _questionaryModel
+              controller: _filtredQuestionaryModel
                   .questions[_currentQuestionId].optionsControllers.first,
               keyboardType: TextInputType.text,
               maxLines: null,
@@ -264,7 +272,7 @@ class _FormCompletionState extends State<FormCompletion> {
   }
 
   Widget _multipleChoiseWidget() {
-    var questionary = _questionaryModel.questions[_currentQuestionId];
+    var questionary = _filtredQuestionaryModel.questions[_currentQuestionId];
     var completedModel = _completedFormModel.questions[_currentQuestionId];
     return Expanded(
         child: ListView.builder(
@@ -294,7 +302,7 @@ class _FormCompletionState extends State<FormCompletion> {
   }
 
   Widget _singleChoiseWidget() {
-    var questionary = _questionaryModel.questions[_currentQuestionId];
+    var questionary = _filtredQuestionaryModel.questions[_currentQuestionId];
     var completedModel = _completedFormModel.questions[_currentQuestionId];
     return Expanded(
         child: ListView.builder(
@@ -323,8 +331,8 @@ class _FormCompletionState extends State<FormCompletion> {
   Widget _sliderWidget() {
     double maxValue = 10;
     double minValue = 0;
-    var questionary =
-        _questionaryModel.questions[_currentQuestionId] as SliderFormField;
+    var questionary = _filtredQuestionaryModel.questions[_currentQuestionId]
+        as SliderFormField;
     if (_completedFormModel.questions[_currentQuestionId].selectedOptions !=
             null &&
         _completedFormModel
@@ -405,11 +413,14 @@ class _FormCompletionState extends State<FormCompletion> {
   }
 
   void _saveAnswer() {
-    switch (_questionaryModel.questions[_currentQuestionId].type) {
+    switch (_filtredQuestionaryModel.questions[_currentQuestionId].type) {
       case QuestionaryFieldAbstract.paragraph:
         _completedFormModel.questions[_currentQuestionId].selectedOptions.add(
-            _questionaryModel
+            _filtredQuestionaryModel
                 .questions[_currentQuestionId].optionsControllers.first.text);
+        break;
+      case QuestionaryFieldAbstract.singleChoise:
+        _filterQuestionsByKey();
         break;
       default:
         break;
@@ -417,7 +428,7 @@ class _FormCompletionState extends State<FormCompletion> {
   }
 
   bool isFormValid() {
-    switch (_questionaryModel.questions[_currentQuestionId].type) {
+    switch (_filtredQuestionaryModel.questions[_currentQuestionId].type) {
       case QuestionaryFieldAbstract.paragraph:
         return _formKey.currentState.validate();
         break;
@@ -428,7 +439,26 @@ class _FormCompletionState extends State<FormCompletion> {
     }
   }
 
-  void _filterQuestions() {
-    
+  void _filterQuestionsByKey() {
+    var question = _filtredQuestionaryModel.questions[_currentQuestionId]
+        as SingleChoiseFormField;
+    print(_filtredQuestionaryModel.questions.length);
+    var completedQuestion = _completedFormModel.questions[_currentQuestionId];
+    if (question.isKeyQuestion) {
+      var question = _questionaryModel.questions.firstWhere(
+          (element) =>
+              completedQuestion.name == element.keyQuestion &&
+              completedQuestion.selectedOptions.first ==
+                  element.keyQuestionOption,
+          orElse: () => null);
+      if (question != null) {
+        setState(() {
+          _filtredQuestionaryModel.questions
+              .insert(_currentQuestionId + 1, question);
+          _completedFormModel.questions.insert(_currentQuestionId + 1,
+              CompletedFormQuestion.fromQuestionaryFieldType(question));
+        });
+      }
+    }
   }
 }

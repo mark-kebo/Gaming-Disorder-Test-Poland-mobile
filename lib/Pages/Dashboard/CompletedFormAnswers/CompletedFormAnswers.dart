@@ -84,12 +84,9 @@ class _CompletedFormAnswersState extends State<CompletedFormAnswers> {
             itemCount: questions.length,
             itemBuilder: (BuildContext context, int index) {
               return ListTile(
-                          title: Text((index + 1).toString() +
-                              ". " +
-                              questions[index].name),
-                          subtitle: Text(
-                              questions[index].selectedOptions.join(", ")));
-            })
-            );
+                  title: Text(
+                      (index + 1).toString() + ". " + questions[index].name),
+                  subtitle: Text(questions[index].selectedOptions.join(", ")));
+            }));
   }
 }
