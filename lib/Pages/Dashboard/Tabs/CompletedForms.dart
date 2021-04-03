@@ -4,6 +4,7 @@ import 'package:gdt/Helpers/Strings.dart';
 import 'package:gdt/Models/CompletedForm.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:firebase_auth/firebase_auth.dart';
+import 'package:gdt/Pages/Dashboard/CompletedFormAnswers/CompletedFormAnswers.dart';
 
 FirebaseFirestore firestore = FirebaseFirestore.instance;
 
@@ -16,7 +17,8 @@ class CompletedForms extends StatefulWidget {
 class _CompletedFormsState extends State<CompletedForms> {
   List<CompletedFormModel> _forms = <CompletedFormModel>[];
   final FirebaseAuth firebaseAuth = FirebaseAuth.instance;
-  CollectionReference _usersCollection = firestore.collection(ProjectConstants.usersCollectionName);
+  CollectionReference _usersCollection =
+      firestore.collection(ProjectConstants.usersCollectionName);
   Radius _listElementCornerRadius = const Radius.circular(16.0);
   bool _isShowLoading = false;
 
@@ -64,17 +66,26 @@ class _CompletedFormsState extends State<CompletedForms> {
           padding: const EdgeInsets.all(8),
           itemCount: _forms.length,
           itemBuilder: (BuildContext context, int index) {
-            return Padding(
-                padding: const EdgeInsets.all(8.0),
-                child: new Container(
-                    decoration: new BoxDecoration(
-                        color: Colors.grey[200],
-                        borderRadius: new BorderRadius.only(
-                            topLeft: _listElementCornerRadius,
-                            topRight: _listElementCornerRadius,
-                            bottomLeft: _listElementCornerRadius,
-                            bottomRight: _listElementCornerRadius)),
-                    child: ListTile(title: Text(_forms[index].name))));
+            return GestureDetector(
+                child: Padding(
+                    padding: const EdgeInsets.all(8.0),
+                    child: new Container(
+                        decoration: new BoxDecoration(
+                            color: Colors.grey[200],
+                            borderRadius: new BorderRadius.only(
+                                topLeft: _listElementCornerRadius,
+                                topRight: _listElementCornerRadius,
+                                bottomLeft: _listElementCornerRadius,
+                                bottomRight: _listElementCornerRadius)),
+                        child: ListTile(title: Text(_forms[index].name)))),
+                onTap: () async {
+                  print(_forms[index]);
+                  Navigator.push(
+                      context,
+                      MaterialPageRoute(
+                          builder: (BuildContext ctx) =>
+                              CompletedFormAnswers(_forms[index])));
+                });
           });
     }
   }

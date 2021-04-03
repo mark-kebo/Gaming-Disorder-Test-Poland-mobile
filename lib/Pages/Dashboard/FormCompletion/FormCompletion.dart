@@ -75,6 +75,16 @@ class _FormCompletionState extends State<FormCompletion> {
                 ])),
             appBar: AppBar(
               backgroundColor: Colors.white,
+              actions: [
+                FlatButton(
+                  textColor: Colors.deepPurple,
+                  onPressed: () async {
+                    alertController.showMessageDialog(
+                        context, ProjectStrings.help, ProjectStrings.helpData);
+                  },
+                  child: Icon(Icons.help_outline_rounded),
+                ),
+              ],
               leading: BackButton(
                 color: Colors.deepPurple,
                 onPressed: () {
@@ -89,7 +99,8 @@ class _FormCompletionState extends State<FormCompletion> {
   Widget _formWidget() {
     if (_completedFormModel.questions[_currentQuestionId].isSoFast) {
       var seconds =
-          _questionaryModel.questions[_currentQuestionId].minQuestionTime;
+          _questionaryModel.questions[_currentQuestionId].minQuestionTime ??
+              ProjectConstants.defaultQuestionSec;
       _timer = Timer(Duration(seconds: seconds), () {
         print(seconds);
         print("isSoFast = false");
@@ -415,5 +426,9 @@ class _FormCompletionState extends State<FormCompletion> {
             .questions[_currentQuestionId].selectedOptions.isNotEmpty;
         break;
     }
+  }
+
+  void _filterQuestions() {
+    
   }
 }

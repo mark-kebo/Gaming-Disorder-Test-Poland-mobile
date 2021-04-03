@@ -7,4 +7,5 @@ class ProjectConstants {
   static var groupsCollectionName = 'user_groups';
   static var completedFormsCollectionName = 'completedForms';
   static var selectedUsersCollectionName = 'selectedUsers';
+  static var defaultQuestionSec = 60;
 }

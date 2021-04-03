@@ -36,14 +36,14 @@ class CompletedFormQuestion {
   List<String> selectedOptions = <String>[];
 
   CompletedFormQuestion(dynamic object) {
-    name = object["question"];
+    name = object["name"];
     isSoFast = object["isSoFast"];
     selectedOptions =
         (object["selectedOptions"] as List).map((e) => e as String).toList();
   }
 
   CompletedFormQuestion.fromQuestionaryFieldType(QuestionaryFieldType field) {
-    name = field.name;
+    name = field.questionController.text;
   }
 
   Map itemsList() {
