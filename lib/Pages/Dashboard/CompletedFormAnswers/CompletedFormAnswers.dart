@@ -36,7 +36,7 @@ class _CompletedFormAnswersState extends State<CompletedFormAnswers> {
         home: Scaffold(
             key: _scaffoldKey,
             body: Padding(
-                padding: EdgeInsets.all(_formPadding), child: _formWidget()),
+                padding: EdgeInsets.all(_formPadding), child: _questionsList()),
             appBar: AppBar(
               backgroundColor: Colors.white,
               actions: [
@@ -60,33 +60,16 @@ class _CompletedFormAnswersState extends State<CompletedFormAnswers> {
             )));
   }
 
-  Widget _formWidget() {
-    return Expanded(
-        child: Container(
-            width: double.maxFinite,
-            height: double.maxFinite,
-            padding: EdgeInsets.all(_formPadding),
-            decoration: new BoxDecoration(
-                color: Colors.grey[200],
-                borderRadius: new BorderRadius.only(
-                    topLeft: _containerCornerRadius,
-                    topRight: _containerCornerRadius,
-                    bottomLeft: _containerCornerRadius,
-                    bottomRight: _containerCornerRadius)),
-            child: _questionsList()));
-  }
-
   Widget _questionsList() {
     var questions = _formModel.questions;
     print(questions.first.name);
-    return Expanded(
-        child: ListView.builder(
+    return ListView.builder(
             itemCount: questions.length,
             itemBuilder: (BuildContext context, int index) {
               return ListTile(
                   title: Text(
                       (index + 1).toString() + ". " + questions[index].name),
                   subtitle: Text(questions[index].selectedOptions.join(", ")));
-            }));
+            });
   }
 }
