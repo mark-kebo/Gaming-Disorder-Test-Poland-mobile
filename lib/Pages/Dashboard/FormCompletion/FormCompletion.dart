@@ -3,6 +3,7 @@ import 'dart:async';
 import 'package:flutter/material.dart';
 import 'package:gdt/Helpers/Constants.dart';
 import 'package:gdt/Helpers/Strings.dart';
+import 'package:gdt/Models/HelpData.dart';
 import 'package:gdt/Models/Questionary.dart';
 import 'package:gdt/Models/CompletedForm.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
@@ -86,8 +87,13 @@ class _FormCompletionState extends State<FormCompletion> {
                   textColor: Colors.deepPurple,
                   onPressed: () async {
                     alertController.showMessageDialog(
-                        context, ProjectStrings.help, ProjectStrings.helpData);
-                  },
+                        context,
+                        ProjectStrings.help,
+                        ProjectStrings.helpEmail +
+                            HelpData.helpEmail +
+                            '\n' +
+                            ProjectStrings.helpTel +
+                            HelpData.helpPhone);                   },
                   child: Icon(Icons.help_outline_rounded),
                 ),
               ],

@@ -1,9 +1,14 @@
+import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:flutter/material.dart';
 import 'package:gdt/Helpers/Alert.dart';
+import 'package:gdt/Helpers/Constants.dart';
 import 'package:gdt/Helpers/Strings.dart';
+import 'package:gdt/Models/HelpData.dart';
 import 'package:gdt/Pages/Dashboard/Tabs/MyForms.dart';
 import 'package:gdt/Pages/Dashboard/Tabs/Settings.dart';
 import 'package:gdt/Pages/Dashboard/Tabs/CompletedForms.dart';
+
+FirebaseFirestore firestore = FirebaseFirestore.instance;
 
 class _DashboardTabItem {
   String name;
@@ -21,6 +26,9 @@ class Dashboard extends StatefulWidget {
 }
 
 class _DashboardState extends State<Dashboard> {
+  CollectionReference _settingsCollection =
+      firestore.collection(ProjectConstants.settingsCollectionName);
+
   int _currentIndex = 0;
   List<_DashboardTabItem> _children = [];
   final AlertController alertController = AlertController();
@@ -30,10 +38,18 @@ class _DashboardState extends State<Dashboard> {
   }
 
   void _prepareViewData() {
+    _settingsCollection
+        .doc(ProjectConstants.settingsContactCollectionName)
+        .get()
+        .then((value) => {
+              HelpData.helpEmail = value["email"],
+              HelpData.helpPhone = value["phone"]
+            });
+
     _children.add(_DashboardTabItem(ProjectStrings.myForms, MyForms()));
     _children.add(
         _DashboardTabItem(ProjectStrings.completedForms, CompletedForms()));
-    _children.add(_DashboardTabItem(ProjectStrings.settings, Settings()));
+    _children.add(_DashboardTabItem(ProjectStrings.settings, AppSettings()));
   }
 
   @override
@@ -53,7 +69,13 @@ class _DashboardState extends State<Dashboard> {
                   textColor: Colors.deepPurple,
                   onPressed: () async {
                     alertController.showMessageDialog(
-                        context, ProjectStrings.help, ProjectStrings.helpData);
+                        context,
+                        ProjectStrings.help,
+                        ProjectStrings.helpEmail +
+                            HelpData.helpEmail +
+                            '\n' +
+                            ProjectStrings.helpTel +
+                            HelpData.helpPhone);
                   },
                   child: Icon(Icons.help_outline_rounded),
                 ),

@@ -65,7 +65,7 @@ class _LoginFormState extends State<LoginForm> {
                   decoration: InputDecoration(labelText: ProjectStrings.email),
                   validator: (String value) {
                     bool emailValid =
-                        ProjectConstants.emailRegExp.hasMatch(value);
+                        RegExp(ProjectConstants.emailRegExp).hasMatch(value);
                     if (!emailValid || value.isEmpty) {
                       return ProjectStrings.emailNotValid;
                     }

@@ -49,7 +49,8 @@ class _CreateAccountFormState extends State<CreateAccountForm> {
   final _passwordController = TextEditingController();
   final FirebaseAuth firebaseAuth = FirebaseAuth.instance;
 
-  CollectionReference _users = firestore.collection(ProjectConstants.usersCollectionName);
+  CollectionReference _users =
+      firestore.collection(ProjectConstants.usersCollectionName);
 
   final AlertController alertController = AlertController();
 
@@ -95,7 +96,7 @@ class _CreateAccountFormState extends State<CreateAccountForm> {
                   decoration: InputDecoration(labelText: ProjectStrings.email),
                   validator: (String value) {
                     bool emailValid =
-                        ProjectConstants.emailRegExp.hasMatch(value);
+                        RegExp(ProjectConstants.emailRegExp).hasMatch(value);
                     if (!emailValid || value.isEmpty) {
                       return ProjectStrings.emailNotValid;
                     }
@@ -106,7 +107,8 @@ class _CreateAccountFormState extends State<CreateAccountForm> {
               padding: EdgeInsets.all(_fieldPadding),
               child: TextFormField(
                   controller: _passwordController,
-                  decoration: InputDecoration(labelText: ProjectStrings.password),
+                  decoration:
+                      InputDecoration(labelText: ProjectStrings.password),
                   validator: (String value) {
                     if (value.isEmpty) {
                       return ProjectStrings.emptyPassword;
@@ -181,15 +183,16 @@ class _CreateAccountFormState extends State<CreateAccountForm> {
       _users.add({
         'name': _nameController.text,
         "id": _auth.currentUser.uid
-      }).catchError((error) =>
-          alertController.showMessageDialog(context, ProjectStrings.error, error.message));
+      }).catchError((error) => alertController.showMessageDialog(
+          context, ProjectStrings.error, error.message));
       Navigator.pushReplacement(context,
           MaterialPageRoute(builder: (BuildContext ctx) => Dashboard()));
       setState(() {
         _isShowLoading = false;
       });
     } catch (error) {
-      alertController.showMessageDialog(context, ProjectStrings.error, error.message);
+      alertController.showMessageDialog(
+          context, ProjectStrings.error, error.message);
       setState(() {
         _isShowLoading = false;
       });

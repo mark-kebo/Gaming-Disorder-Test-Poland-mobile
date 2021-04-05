@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:gdt/Helpers/Strings.dart';
 import 'package:gdt/Models/CompletedForm.dart';
 import 'package:gdt/Helpers/Alert.dart';
+import 'package:gdt/Models/HelpData.dart';
 
 // ignore: must_be_immutable
 class CompletedFormAnswers extends StatefulWidget {
@@ -17,7 +18,6 @@ class CompletedFormAnswers extends StatefulWidget {
 
 class _CompletedFormAnswersState extends State<CompletedFormAnswers> {
   double _formPadding = 24.0;
-  Radius _containerCornerRadius = const Radius.circular(16.0);
   CompletedFormModel _formModel;
   GlobalKey<ScaffoldState> _scaffoldKey = GlobalKey<ScaffoldState>();
   final AlertController alertController = AlertController();
@@ -44,8 +44,13 @@ class _CompletedFormAnswersState extends State<CompletedFormAnswers> {
                   textColor: Colors.deepPurple,
                   onPressed: () async {
                     alertController.showMessageDialog(
-                        context, ProjectStrings.help, ProjectStrings.helpData);
-                  },
+                        context,
+                        ProjectStrings.help,
+                        ProjectStrings.helpEmail +
+                            HelpData.helpEmail +
+                            '\n' +
+                            ProjectStrings.helpTel +
+                            HelpData.helpPhone);                  },
                   child: Icon(Icons.help_outline_rounded),
                 ),
               ],

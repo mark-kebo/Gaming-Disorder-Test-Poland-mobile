@@ -10,12 +10,12 @@ import 'package:gdt/Helpers/Alert.dart';
 FirebaseFirestore firestore = FirebaseFirestore.instance;
 
 // ignore: must_be_immutable
-class Settings extends StatefulWidget {
+class AppSettings extends StatefulWidget {
   @override
   _SettingsState createState() => _SettingsState();
 }
 
-class _SettingsState extends State<Settings> {
+class _SettingsState extends State<AppSettings> {
   final FirebaseAuth _auth = FirebaseAuth.instance;
   CollectionReference _usersCollection =
       firestore.collection(ProjectConstants.usersCollectionName);
