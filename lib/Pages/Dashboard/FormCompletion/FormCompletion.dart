@@ -394,7 +394,7 @@ class _FormCompletionState extends State<FormCompletion> {
   }
 
   void _completeForm() {
-    if (_completedFormModel.checkList.dateTime == null) {
+    if (_completedFormModel.checkList.dateTime == null && _questionaryModel.isHasCheckList) {
       ScaffoldMessenger.of(_scaffoldKey.currentContext)
           .showSnackBar(_completeChecklistSnackBar);
     } else {

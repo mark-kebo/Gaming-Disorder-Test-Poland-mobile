@@ -18,7 +18,8 @@ class CompletedFormModel {
   CompletedFormModel.fromQuestionaryModel(QuestionaryModel questionary) {
     this.id = questionary.id;
     this.name = questionary.name;
-    this.checkList = CompletedCheckList.fromQuestionaryModel(questionary.checkList);
+    this.checkList =
+        CompletedCheckList.fromQuestionaryModel(questionary.checkList);
     this.questions = questionary.questions
         .map((e) => CompletedFormQuestion.fromQuestionaryFieldType(e))
         .toList();
@@ -41,8 +42,10 @@ class CompletedCheckList {
 
   CompletedCheckList(dynamic object) {
     name = object["name"];
-    dateTime = object["dateTime"];
-    options = (object["options"] as Map<String, bool>);
+    dateTime = DateTime.fromMicrosecondsSinceEpoch(object["dateTime"] as int);
+    (object["options"] as Map<String, dynamic>).forEach((key, value) {
+      options[key] = value as bool;
+    });
   }
 
   CompletedCheckList.fromQuestionaryModel(CheckListQuestionaryField object) {
@@ -52,10 +55,10 @@ class CompletedCheckList {
     }
   }
 
-    Map itemsList() {
+  Map itemsList() {
     return {
       "name": this.name,
-      "dateTime": this.dateTime,
+      "dateTime": this.dateTime.millisecondsSinceEpoch,
       "options": this.options
     };
   }
