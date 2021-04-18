@@ -41,11 +41,13 @@ class CompletedCheckList {
   Map<String, bool> options = Map<String, bool>();
 
   CompletedCheckList(dynamic object) {
-    name = object["name"];
-    dateTime = DateTime.fromMicrosecondsSinceEpoch(object["dateTime"] as int);
-    (object["options"] as Map<String, dynamic>).forEach((key, value) {
-      options[key] = value as bool;
-    });
+    if (object != null) {
+      name = object["name"];
+      dateTime = DateTime.fromMillisecondsSinceEpoch(object["dateTime"] as int);
+      (object["options"] as Map<String, dynamic>).forEach((key, value) {
+        options[key] = value as bool;
+      });
+    }
   }
 
   CompletedCheckList.fromQuestionaryModel(CheckListQuestionaryField object) {
