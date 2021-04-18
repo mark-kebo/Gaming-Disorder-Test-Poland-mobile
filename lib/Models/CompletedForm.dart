@@ -3,11 +3,13 @@ import 'package:gdt/Models/Questionary.dart';
 class CompletedFormModel {
   String id = "";
   String name = "";
+  CompletedCheckList checkList;
   List<CompletedFormQuestion> questions = <CompletedFormQuestion>[];
 
   CompletedFormModel(dynamic object) {
     id = object["id"];
     name = object["name"];
+    checkList = CompletedCheckList(object["checkList"]);
     questions = (object["questions"] as List)
         .map((e) => CompletedFormQuestion(e))
         .toList();
@@ -16,6 +18,7 @@ class CompletedFormModel {
   CompletedFormModel.fromQuestionaryModel(QuestionaryModel questionary) {
     this.id = questionary.id;
     this.name = questionary.name;
+    this.checkList = CompletedCheckList.fromQuestionaryModel(questionary.checkList);
     this.questions = questionary.questions
         .map((e) => CompletedFormQuestion.fromQuestionaryFieldType(e))
         .toList();
@@ -25,7 +28,35 @@ class CompletedFormModel {
     return {
       "id": this.id,
       "name": this.name,
+      "checkList": this.checkList.itemsList(),
       "questions": this.questions.map((e) => e.itemsList()).toList()
+    };
+  }
+}
+
+class CompletedCheckList {
+  String name = "";
+  DateTime dateTime;
+  Map<String, bool> options = Map<String, bool>();
+
+  CompletedCheckList(dynamic object) {
+    name = object["name"];
+    dateTime = object["dateTime"];
+    options = (object["options"] as Map<String, bool>);
+  }
+
+  CompletedCheckList.fromQuestionaryModel(CheckListQuestionaryField object) {
+    name = object.nameController.text;
+    for (var option in object.optionsControllers) {
+      options[option.text] = false;
+    }
+  }
+
+    Map itemsList() {
+    return {
+      "name": this.name,
+      "dateTime": this.dateTime,
+      "options": this.options
     };
   }
 }

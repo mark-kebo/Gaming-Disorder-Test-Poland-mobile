@@ -39,8 +39,11 @@ class _FormCompletionState extends State<FormCompletion> {
   final AlertController alertController = AlertController();
   Timer _timer;
   GlobalKey<ScaffoldState> _scaffoldKey = GlobalKey<ScaffoldState>();
-  var _snackBar = SnackBar(
+  var _chooseAnswersSnackBar = SnackBar(
     content: Text(ProjectStrings.chooseAnswers),
+  );
+  var _completeChecklistSnackBar = SnackBar(
+    content: Text(ProjectStrings.completeChecklist),
   );
 
   QuestionaryFieldType _lastAddedQuestion;
@@ -85,13 +88,15 @@ class _FormCompletionState extends State<FormCompletion> {
             appBar: AppBar(
               backgroundColor: Colors.white,
               actions: [
-                FlatButton(
-                  textColor: Colors.deepPurple,
-                  onPressed: () async {
-                    _showCheckList();
-                  },
-                  child: Text(ProjectStrings.checklist),
-                ),
+                _questionaryModel.isHasCheckList
+                    ? FlatButton(
+                        textColor: Colors.deepPurple,
+                        onPressed: () async {
+                          _showCheckList();
+                        },
+                        child: Text(ProjectStrings.checklist),
+                      )
+                    : SizedBox(),
                 FlatButton(
                   textColor: Colors.deepPurple,
                   onPressed: () async {
@@ -207,7 +212,7 @@ class _FormCompletionState extends State<FormCompletion> {
                                     .questions[_currentQuestionId].type !=
                                 QuestionaryFieldAbstract.paragraph) {
                               ScaffoldMessenger.of(_scaffoldKey.currentContext)
-                                  .showSnackBar(_snackBar);
+                                  .showSnackBar(_chooseAnswersSnackBar);
                             }
                           }))
             ])));
@@ -389,43 +394,50 @@ class _FormCompletionState extends State<FormCompletion> {
   }
 
   void _completeForm() {
-    setState(() {
-      _isShowLoading = true;
-    });
-    String currentUserId;
-    _usersCollection
-        .get()
-        .then((QuerySnapshot querySnapshot) => {
-              querySnapshot.docs.forEach((doc) {
-                var id = doc["id"];
-                if (id == _firebaseAuth.currentUser.uid) {
-                  currentUserId = doc.id;
-                }
+    if (_completedFormModel.checkList.dateTime == null) {
+      ScaffoldMessenger.of(_scaffoldKey.currentContext)
+          .showSnackBar(_completeChecklistSnackBar);
+    } else {
+      setState(() {
+        _isShowLoading = true;
+      });
+      String currentUserId;
+      _usersCollection
+          .get()
+          .then((QuerySnapshot querySnapshot) => {
+                querySnapshot.docs.forEach((doc) {
+                  var id = doc["id"];
+                  if (id == _firebaseAuth.currentUser.uid) {
+                    currentUserId = doc.id;
+                  }
+                })
               })
-            })
-        .whenComplete(() => {
-              _usersCollection
-                  .doc(currentUserId)
-                  .update({
-                    ProjectConstants.completedFormsCollectionName:
-                        FieldValue.arrayUnion([_completedFormModel.itemsList()])
-                  })
-                  .then((value) => setState(() {
-                        _isShowLoading = false;
-                        Navigator.pushAndRemoveUntil(
-                          context,
-                          MaterialPageRoute(builder: (context) => Dashboard()),
-                          (Route<dynamic> route) => false,
-                        );
-                      }))
-                  .catchError((error) => {
-                        alertController.showMessageDialog(
-                            context, ProjectStrings.error, error.message),
-                        setState(() {
+          .whenComplete(() => {
+                _usersCollection
+                    .doc(currentUserId)
+                    .update({
+                      ProjectConstants.completedFormsCollectionName:
+                          FieldValue.arrayUnion(
+                              [_completedFormModel.itemsList()])
+                    })
+                    .then((value) => setState(() {
                           _isShowLoading = false;
+                          Navigator.pushAndRemoveUntil(
+                            context,
+                            MaterialPageRoute(
+                                builder: (context) => Dashboard()),
+                            (Route<dynamic> route) => false,
+                          );
+                        }))
+                    .catchError((error) => {
+                          alertController.showMessageDialog(
+                              context, ProjectStrings.error, error.message),
+                          setState(() {
+                            _isShowLoading = false;
+                          })
                         })
-                      })
-            });
+              });
+    }
   }
 
   void _saveAnswer() {
@@ -455,7 +467,42 @@ class _FormCompletionState extends State<FormCompletion> {
     }
   }
 
-  void _showCheckList() {}
+  void _showCheckList() {
+    Widget okButton = FlatButton(
+      child: Text(ProjectStrings.ok),
+      onPressed: () {
+        _completedFormModel.checkList.dateTime = DateTime.now();
+        Navigator.of(context, rootNavigator: true).pop();
+      },
+    );
+    showDialog<void>(
+        context: context,
+        builder: (BuildContext context) {
+          return AlertDialog(
+            title: Text(_questionaryModel.checkList.nameController.text,
+                style: TextStyle(
+                    fontWeight: FontWeight.bold, color: Colors.black)),
+            content: StatefulBuilder(
+              builder: (BuildContext context, StateSetter setState) {
+                return Column(
+                    mainAxisSize: MainAxisSize.min,
+                    children: _questionaryModel.checkList.optionsControllers
+                        .map((e) => CheckboxListTile(
+                              value:
+                                  _completedFormModel.checkList.options[e.text],
+                              title: Text(e.text),
+                              onChanged: (bool value) {
+                                setState(() => _completedFormModel
+                                    .checkList.options[e.text] = value);
+                              },
+                            ))
+                        .toList());
+              },
+            ),
+            actions: [okButton],
+          );
+        });
+  }
 
   void _filterQuestionsByKey() {
     var question = _filtredQuestionaryModel.questions[_currentQuestionId]

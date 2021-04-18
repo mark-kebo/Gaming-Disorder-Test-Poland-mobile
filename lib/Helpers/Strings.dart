@@ -72,4 +72,5 @@ class ProjectStrings {
   static const phoneNumber = "Numer telefonu";
   static const phoneNotValid = "Nieprawidłowy numer telefonu";
   static const checklist = "Checklista";
+  static const completeChecklist = "Wykonaj czeklistę";
 }
