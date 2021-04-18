@@ -71,4 +71,5 @@ class ProjectStrings {
   static const contact = "Dane kontaktowe:";
   static const phoneNumber = "Numer telefonu";
   static const phoneNotValid = "Nieprawidłowy numer telefonu";
+  static const checklist = "Checklista";
 }

@@ -43,6 +43,8 @@ class _FormCompletionState extends State<FormCompletion> {
     content: Text(ProjectStrings.chooseAnswers),
   );
 
+  QuestionaryFieldType _lastAddedQuestion;
+
   int _currentQuestionId = 0;
   bool _isShowLoading = false;
 
@@ -86,6 +88,13 @@ class _FormCompletionState extends State<FormCompletion> {
                 FlatButton(
                   textColor: Colors.deepPurple,
                   onPressed: () async {
+                    _showCheckList();
+                  },
+                  child: Text(ProjectStrings.checklist),
+                ),
+                FlatButton(
+                  textColor: Colors.deepPurple,
+                  onPressed: () async {
                     alertController.showMessageDialog(
                         context,
                         ProjectStrings.help,
@@ -93,7 +102,8 @@ class _FormCompletionState extends State<FormCompletion> {
                             HelpData.helpEmail +
                             '\n' +
                             ProjectStrings.helpTel +
-                            HelpData.helpPhone);                   },
+                            HelpData.helpPhone);
+                  },
                   child: Icon(Icons.help_outline_rounded),
                 ),
               ],
@@ -445,6 +455,8 @@ class _FormCompletionState extends State<FormCompletion> {
     }
   }
 
+  void _showCheckList() {}
+
   void _filterQuestionsByKey() {
     var question = _filtredQuestionaryModel.questions[_currentQuestionId]
         as SingleChoiseFormField;
@@ -457,8 +469,18 @@ class _FormCompletionState extends State<FormCompletion> {
               completedQuestion.selectedOptions.first ==
                   element.keyQuestionOption,
           orElse: () => null);
-      if (question != null) {
+      if (question == null &&
+          _filtredQuestionaryModel.questions[_currentQuestionId + 1] ==
+              _lastAddedQuestion) {
+        _lastAddedQuestion = null;
+        _filtredQuestionaryModel.questions.removeAt(_currentQuestionId + 1);
+        _completedFormModel.questions.removeAt(_currentQuestionId + 1);
+      }
+      if (question != null &&
+          _filtredQuestionaryModel.questions[_currentQuestionId + 1] !=
+              question) {
         setState(() {
+          _lastAddedQuestion = question;
           _filtredQuestionaryModel.questions
               .insert(_currentQuestionId + 1, question);
           _completedFormModel.questions.insert(_currentQuestionId + 1,

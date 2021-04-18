@@ -7,16 +7,20 @@ class QuestionaryModel {
   String description = "";
   String groupId = "";
   String groupName = "";
+  bool isHasCheckList = false;
 
+  CheckListQuestionaryField checkList;
   List<QuestionaryFieldType> questions = <QuestionaryFieldType>[];
 
   QuestionaryModel(String id, DocumentSnapshot snapshot) {
     if (snapshot != null) {
       this.id = id;
       name = snapshot.data()["name"];
+      isHasCheckList = snapshot.data()["isHasCheckList"];
       description = snapshot.data()["description"];
       groupId = snapshot.data()["groupId"];
       groupName = snapshot.data()["groupName"];
+      checkList = CheckListQuestionaryField(snapshot.data()["checkList"]);
       initQuestions(snapshot);
     }
   }
@@ -24,9 +28,11 @@ class QuestionaryModel {
   QuestionaryModel.copyFrom(QuestionaryModel questionary) {
     this.id = questionary.id;
     this.name = questionary.name;
-    this.description = questionary.name;
+    this.description = questionary.description;
     this.groupId = questionary.groupId;
     this.groupName = questionary.groupName;
+    this.checkList = questionary.checkList;
+    this.isHasCheckList = questionary.isHasCheckList;
     this.questions = questionary.questions.map((e) => e).toList();
   }
 
@@ -261,6 +267,33 @@ class SliderFormField extends QuestionaryFieldType {
       "keyQuestion": this.keyQuestion,
       "keyQuestionOption": this.keyQuestionOption,
       "minTime": this.minQuestionTime
+    };
+  }
+}
+
+class CheckListQuestionaryField {
+  TextEditingController nameController = TextEditingController();
+  List<TextEditingController> optionsControllers = <TextEditingController>[];
+  Icon icon = Icon(
+    Icons.check_circle_rounded,
+    color: Colors.deepPurple,
+  );
+
+  CheckListQuestionaryField(dynamic item) {
+    if (item != null) {
+      for (var option in item['options']) {
+        var textController = TextEditingController();
+        textController.text = option;
+        optionsControllers.add(textController);
+      }
+      nameController.text = item["name"];
+    }
+  }
+
+  Map itemsList() {
+    return {
+      "name": this.nameController.text,
+      "options": this.optionsControllers.map((e) => e.text),
     };
   }
 }

@@ -7,6 +7,7 @@ import 'package:gdt/Models/HelpData.dart';
 import 'package:gdt/Pages/Dashboard/Tabs/MyForms.dart';
 import 'package:gdt/Pages/Dashboard/Tabs/Settings.dart';
 import 'package:gdt/Pages/Dashboard/Tabs/CompletedForms.dart';
+import 'package:flutter/services.dart';
 
 FirebaseFirestore firestore = FirebaseFirestore.instance;
 
@@ -35,6 +36,13 @@ class _DashboardState extends State<Dashboard> {
 
   _DashboardState() {
     _prepareViewData();
+  }
+
+  void initState() {
+    super.initState();
+    SystemChrome.setPreferredOrientations([
+      DeviceOrientation.portraitUp
+    ]);
   }
 
   void _prepareViewData() {
