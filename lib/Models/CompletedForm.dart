@@ -26,12 +26,18 @@ class CompletedFormModel {
   }
 
   Map itemsList() {
-    return {
-      "id": this.id,
-      "name": this.name,
-      "checkList": this.checkList.itemsList(),
-      "questions": this.questions.map((e) => e.itemsList()).toList()
-    };
+    return this.checkList.dateTime == null
+        ? {
+            "id": this.id,
+            "name": this.name,
+            "questions": this.questions.map((e) => e.itemsList()).toList()
+          }
+        : {
+            "id": this.id,
+            "name": this.name,
+            "checkList": this.checkList.itemsList(),
+            "questions": this.questions.map((e) => e.itemsList()).toList()
+          };
   }
 }
 
@@ -60,7 +66,8 @@ class CompletedCheckList {
   Map itemsList() {
     return {
       "name": this.name,
-      "dateTime": this.dateTime.millisecondsSinceEpoch,
+      "dateTime":
+          this.dateTime != null ? this.dateTime.millisecondsSinceEpoch : null,
       "options": this.options
     };
   }
