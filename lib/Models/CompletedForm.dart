@@ -25,16 +25,22 @@ class CompletedFormModel {
         .toList();
   }
 
+  bool isSuspicious() {
+    return this.questions.where((element) => element.isSoFast).isNotEmpty;//TODO: - logic with search matches here
+  }
+
   Map itemsList() {
     return this.checkList.dateTime == null
         ? {
             "id": this.id,
             "name": this.name,
+            "isSuspicious": isSuspicious(),
             "questions": this.questions.map((e) => e.itemsList()).toList()
           }
         : {
             "id": this.id,
             "name": this.name,
+            "isSuspicious": isSuspicious(),
             "checkList": this.checkList.itemsList(),
             "questions": this.questions.map((e) => e.itemsList()).toList()
           };
