@@ -5,10 +5,12 @@ import 'package:gdt/Pages/Dashboard/Dashboard.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:firebase_core/firebase_core.dart';
+import 'package:gdt/Helpers/PushNotificationManager.dart';
 
 Future<void> main() async {
   WidgetsFlutterBinding.ensureInitialized();
   await Firebase.initializeApp();
+  PushNotificationsManager().init();
   SharedPreferences prefs = await SharedPreferences.getInstance();
   var email = prefs.getString(ProjectConstants.prefsEmail);
   var password = prefs.getString(ProjectConstants.prefsPassword);
