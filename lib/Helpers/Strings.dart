@@ -1,3 +1,5 @@
+// @dart=2.9
+
 class ProjectStrings {
   static const ok = "OK";
   static const cancel = "Cancel";

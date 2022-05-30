@@ -1,3 +1,5 @@
+// @dart=2.9
+
 class ProjectConstants {
   static const emailRegExp = r"^[a-zA-Z0-9.a-zA-Z0-9.!#$%&'*+-/=?^_`{|}~]+@[a-zA-Z0-9]+\.[a-zA-Z]+";
   static const phoneRegExp = r'(^(?:[+0]9)?[0-9]{9,12}$)';
