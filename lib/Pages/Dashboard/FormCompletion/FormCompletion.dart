@@ -29,7 +29,7 @@ class FormCompletion extends StatefulWidget {
 }
 
 class _FormCompletionState extends State<FormCompletion> {
-  double _formPadding = 24.0;
+  double _formPadding = 16.0;
   Radius _containerCornerRadius = const Radius.circular(16.0);
   CollectionReference _usersCollection =
       firestore.collection(ProjectConstants.usersCollectionName);
@@ -84,8 +84,60 @@ class _FormCompletionState extends State<FormCompletion> {
                       padding: EdgeInsets.only(bottom: _formPadding),
                       child: Text(_filtredQuestionaryModel.description ?? "",
                           style:
-                              TextStyle(fontSize: 16, color: Colors.black87))),
-                  _formWidget()
+                              TextStyle(fontSize: 12, color: Colors.black87))),
+                  _formWidget(),
+                  new Stack(children: <Widget>[
+                    Visibility(
+                      child: Align(
+                          alignment: FractionalOffset.bottomLeft,
+                          child: MaterialButton(
+                              color: Colors.deepPurple,
+                              textColor: Colors.white,
+                              child: Icon(Icons.arrow_back_rounded),
+                              shape: CircleBorder(),
+                              onPressed: () {
+                                setState(() {
+                                  --_currentQuestionId;
+                                });
+                              })),
+                      visible: _currentQuestionId != 0,
+                    ),
+                    Align(
+                        alignment: FractionalOffset.bottomRight,
+                        child: _isShowLoading
+                            ? CircularProgressIndicator()
+                            : MaterialButton(
+                                color: Colors.deepPurple,
+                                textColor: Colors.white,
+                                child: Icon(_currentQuestionId + 1 !=
+                                        _filtredQuestionaryModel
+                                            .questions.length
+                                    ? Icons.arrow_forward_rounded
+                                    : Icons.done),
+                                shape: CircleBorder(),
+                                onPressed: () {
+                                  _timer.cancel();
+                                  if (isFormValid()) {
+                                    if (_currentQuestionId + 1 ==
+                                        _filtredQuestionaryModel
+                                            .questions.length) {
+                                      _saveAnswer();
+                                      _completeForm();
+                                    } else {
+                                      setState(() {
+                                        _saveAnswer();
+                                        ++_currentQuestionId;
+                                      });
+                                    }
+                                  } else if (_filtredQuestionaryModel
+                                          .questions[_currentQuestionId].type !=
+                                      QuestionaryFieldAbstract.paragraph) {
+                                    ScaffoldMessenger.of(
+                                            _scaffoldKey.currentContext)
+                                        .showSnackBar(_chooseAnswersSnackBar);
+                                  }
+                                }))
+                  ])
                 ])),
             appBar: AppBar(
               backgroundColor: Colors.white,
@@ -121,7 +173,7 @@ class _FormCompletionState extends State<FormCompletion> {
                 },
               ),
               title: Text(_filtredQuestionaryModel.name,
-                  style: TextStyle(fontSize: 20, color: Colors.deepPurple)),
+                  style: TextStyle(fontSize: 16, color: Colors.deepPurple)),
             )));
   }
 
@@ -148,76 +200,24 @@ class _FormCompletionState extends State<FormCompletion> {
                     topRight: _containerCornerRadius,
                     bottomLeft: _containerCornerRadius,
                     bottomRight: _containerCornerRadius)),
-            child: new Stack(children: <Widget>[
-              new Column(
-                  crossAxisAlignment: CrossAxisAlignment.start,
-                  children: <Widget>[
-                    Padding(
-                        padding: EdgeInsets.only(bottom: _formPadding),
-                        child: Text(
-                            (_currentQuestionId + 1).toString() +
-                                ". " +
-                                _filtredQuestionaryModel
-                                    .questions[_currentQuestionId]
-                                    .questionController
-                                    .text,
-                            style:
-                                TextStyle(fontSize: 18, color: Colors.black))),
-                    Form(
-                      key: _formKey,
-                      child: _questionsList(),
-                    )
-                  ]),
-              Visibility(
-                child: Align(
-                    alignment: FractionalOffset.bottomLeft,
-                    child: MaterialButton(
-                        color: Colors.deepPurple,
-                        textColor: Colors.white,
-                        child: Icon(Icons.arrow_back_rounded),
-                        padding: EdgeInsets.all(16),
-                        shape: CircleBorder(),
-                        onPressed: () {
-                          setState(() {
-                            --_currentQuestionId;
-                          });
-                        })),
-                visible: _currentQuestionId != 0,
-              ),
-              Align(
-                  alignment: FractionalOffset.bottomRight,
-                  child: _isShowLoading
-                      ? CircularProgressIndicator()
-                      : MaterialButton(
-                          color: Colors.deepPurple,
-                          textColor: Colors.white,
-                          child: Icon(_currentQuestionId + 1 !=
-                                  _filtredQuestionaryModel.questions.length
-                              ? Icons.arrow_forward_rounded
-                              : Icons.done),
-                          padding: EdgeInsets.all(16),
-                          shape: CircleBorder(),
-                          onPressed: () {
-                            _timer.cancel();
-                            if (isFormValid()) {
-                              if (_currentQuestionId + 1 ==
-                                  _filtredQuestionaryModel.questions.length) {
-                                _saveAnswer();
-                                _completeForm();
-                              } else {
-                                setState(() {
-                                  _saveAnswer();
-                                  ++_currentQuestionId;
-                                });
-                              }
-                            } else if (_filtredQuestionaryModel
-                                    .questions[_currentQuestionId].type !=
-                                QuestionaryFieldAbstract.paragraph) {
-                              ScaffoldMessenger.of(_scaffoldKey.currentContext)
-                                  .showSnackBar(_chooseAnswersSnackBar);
-                            }
-                          }))
-            ])));
+            child: new Column(
+                crossAxisAlignment: CrossAxisAlignment.start,
+                children: <Widget>[
+                  Padding(
+                      padding: EdgeInsets.only(bottom: _formPadding),
+                      child: Text(
+                          (_currentQuestionId + 1).toString() +
+                              ". " +
+                              _filtredQuestionaryModel
+                                  .questions[_currentQuestionId]
+                                  .questionController
+                                  .text,
+                          style: TextStyle(fontSize: 14, color: Colors.black))),
+                  Form(
+                    key: _formKey,
+                    child: _questionsList(),
+                  )
+                ])));
   }
 
   Widget _questionsList() {
@@ -249,7 +249,7 @@ class _FormCompletionState extends State<FormCompletion> {
             itemCount: questionary.optionsControllers.length,
             itemBuilder: (BuildContext context, int index) {
               return Padding(
-                  padding: const EdgeInsets.all(8.0),
+                  padding: const EdgeInsets.all(0),
                   child: new Container(
                       child: CheckboxListTile(
                           value: completedModel.selectedOptions.contains(
@@ -264,7 +264,9 @@ class _FormCompletionState extends State<FormCompletion> {
                             });
                           },
                           title: Text(
-                              questionary.optionsControllers[index].text))));
+                              questionary.optionsControllers[index].text,
+                              style: TextStyle(
+                                  fontSize: 12, color: Colors.black)))));
             }));
   }
 
@@ -272,7 +274,7 @@ class _FormCompletionState extends State<FormCompletion> {
     return Expanded(
         child: Container(
             height: double.infinity,
-            margin: EdgeInsets.only(bottom: _formPadding * 2),
+            margin: EdgeInsets.only(bottom: _formPadding),
             child: TextFormField(
               validator: (String value) {
                 if (value.isEmpty) {
@@ -302,7 +304,7 @@ class _FormCompletionState extends State<FormCompletion> {
             itemCount: questionary.optionsControllers.length,
             itemBuilder: (BuildContext context, int index) {
               return Padding(
-                  padding: const EdgeInsets.all(8.0),
+                  padding: const EdgeInsets.all(0),
                   child: new Container(
                       child: CheckboxListTile(
                           value: completedModel.selectedOptions.contains(
@@ -320,7 +322,9 @@ class _FormCompletionState extends State<FormCompletion> {
                             });
                           },
                           title: Text(
-                              questionary.optionsControllers[index].text))));
+                              questionary.optionsControllers[index].text,
+                              style: TextStyle(
+                                  fontSize: 12, color: Colors.black)))));
             }));
   }
 
@@ -332,7 +336,7 @@ class _FormCompletionState extends State<FormCompletion> {
             itemCount: questionary.optionsControllers.length,
             itemBuilder: (BuildContext context, int index) {
               return Padding(
-                  padding: const EdgeInsets.all(8.0),
+                  padding: const EdgeInsets.all(0),
                   child: new Container(
                       child: CheckboxListTile(
                           value: completedModel.selectedOptions.contains(
@@ -347,15 +351,16 @@ class _FormCompletionState extends State<FormCompletion> {
                             });
                           },
                           title: Text(
-                              questionary.optionsControllers[index].text))));
+                              questionary.optionsControllers[index].text,
+                              style: TextStyle(
+                                  fontSize: 12, color: Colors.black)))));
             }));
   }
 
   Widget _sliderWidget() {
-    double maxValue = 10;
-    double minValue = 0;
     var questionary = _filtredQuestionaryModel.questions[_currentQuestionId]
         as SliderFormField;
+    double minValue = 1;
     if (_completedFormModel.questions[_currentQuestionId].selectedOptions !=
             null &&
         _completedFormModel
@@ -370,33 +375,39 @@ class _FormCompletionState extends State<FormCompletion> {
       Slider(
         value: value,
         min: minValue,
-        max: maxValue,
-        divisions: maxValue.toInt(),
+        max: questionary.maxDigit.toDouble(),
+        divisions: questionary.maxDigit,
         label: value.round().toString(),
         onChanged: (double value) {
           setState(() {
             _completedFormModel.questions[_currentQuestionId].selectedOptions =
-                [value.toString()];
+                [value.round().toString()];
           });
         },
       ),
       Row(children: [
         Expanded(
-            flex: 5,
+            flex: 2,
             child: Align(
-                alignment: FractionalOffset.centerLeft,
-                child: Text(questionary.minValueController.text))),
+                alignment: FractionalOffset.topLeft,
+                child: Text(questionary.minValueController.text,
+                    textAlign: TextAlign.start,
+                    style: TextStyle(fontSize: 10, color: Colors.black)))),
+        Expanded(flex: 2, child: SizedBox()),
         Expanded(
-            flex: 5,
+            flex: 2,
             child: Align(
-                alignment: FractionalOffset.centerRight,
-                child: Text(questionary.maxValueController.text)))
+                alignment: FractionalOffset.topRight,
+                child: Text(questionary.maxValueController.text,
+                    textAlign: TextAlign.end,
+                    style: TextStyle(fontSize: 10, color: Colors.black))))
       ])
     ]);
   }
 
   void _completeForm() {
-    if (_completedFormModel.checkList.dateTime == null && _questionaryModel.isHasCheckList) {
+    if (_completedFormModel.checkList.dateTime == null &&
+        _questionaryModel.isHasCheckList) {
       ScaffoldMessenger.of(_scaffoldKey.currentContext)
           .showSnackBar(_completeChecklistSnackBar);
     } else {

@@ -240,6 +240,8 @@ class SliderFormField extends QuestionaryFieldType {
   TextEditingController questionController = TextEditingController();
   TextEditingController maxValueController = TextEditingController();
   TextEditingController minValueController = TextEditingController();
+  int digitStep = 1;
+  int maxDigit = 10;
   String name = "Slider";
   Icon icon = Icon(
     Icons.toggle_on_outlined,
@@ -256,6 +258,8 @@ class SliderFormField extends QuestionaryFieldType {
       keyQuestion = item['keyQuestion'];
       keyQuestionOption = item['keyQuestionOption'];
       minQuestionTime = item["minTime"];
+      digitStep = item["digitStep"];
+      maxDigit = item["maxDigit"];
     }
   }
 
@@ -268,7 +272,9 @@ class SliderFormField extends QuestionaryFieldType {
       "minValue": this.minValueController.text,
       "keyQuestion": this.keyQuestion,
       "keyQuestionOption": this.keyQuestionOption,
-      "minTime": this.minQuestionTime
+      "minTime": this.minQuestionTime,
+      "digitStep": this.digitStep,
+      "maxDigit": this.maxDigit
     };
   }
 }
