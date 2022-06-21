@@ -12,6 +12,7 @@ import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:gdt/Helpers/Alert.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:gdt/Pages/Dashboard/Dashboard.dart';
+import 'package:gdt/Pages/Dashboard/Tabs/Settings.dart';
 
 FirebaseFirestore firestore = FirebaseFirestore.instance;
 
@@ -188,6 +189,19 @@ class _FormCompletionState extends State<FormCompletion> {
         _completedFormModel.questions[_currentQuestionId].isSoFast = false;
       });
     }
+    var matrixHeader =
+        _filtredQuestionaryModel.questions[_currentQuestionId].type ==
+                QuestionaryFieldAbstract.matrix
+            ? Row(mainAxisAlignment: MainAxisAlignment.spaceEvenly, children: [
+                for (var item in (_filtredQuestionaryModel
+                        .questions[_currentQuestionId] as MatrixFormField)
+                    .optionsControllers)
+                  Expanded(
+                      child: Text(item.text,
+                          textAlign: TextAlign.center,
+                          style: TextStyle(fontSize: 10, color: Colors.black)))
+              ])
+            : SizedBox();
     return Expanded(
         child: Container(
             width: double.maxFinite,
@@ -213,6 +227,7 @@ class _FormCompletionState extends State<FormCompletion> {
                                   .questionController
                                   .text,
                           style: TextStyle(fontSize: 14, color: Colors.black))),
+                  matrixHeader,
                   Form(
                     key: _formKey,
                     child: _questionsList(),
@@ -236,6 +251,9 @@ class _FormCompletionState extends State<FormCompletion> {
         break;
       case QuestionaryFieldAbstract.slider:
         return _sliderWidget();
+        break;
+      case QuestionaryFieldAbstract.matrix:
+        return _matrixWidget();
         break;
     }
     return Text(ProjectStrings.noQuestions);
@@ -405,6 +423,65 @@ class _FormCompletionState extends State<FormCompletion> {
     ]);
   }
 
+  Widget _matrixWidget() {
+    var questionary = _filtredQuestionaryModel.questions[_currentQuestionId]
+        as MatrixFormField;
+    return Expanded(
+        child: ListView.builder(
+            itemCount: questionary.questionsControllers.length,
+            itemBuilder: (BuildContext context, int index) {
+              return _matrixFieldWidget(questionary, index);
+            }));
+  }
+
+  Widget _matrixFieldWidget(MatrixFormField questionary, int index) {
+    return new Container(
+        margin:
+            EdgeInsets.only(bottom: _formPadding / 4, top: _formPadding / 4),
+        decoration: new BoxDecoration(
+            color: Colors.grey[100],
+            borderRadius: new BorderRadius.only(
+                topLeft: _containerCornerRadius,
+                topRight: _containerCornerRadius,
+                bottomLeft: _containerCornerRadius,
+                bottomRight: _containerCornerRadius)),
+        child: Column(mainAxisSize: MainAxisSize.min, children: [
+          Row(mainAxisAlignment: MainAxisAlignment.spaceEvenly, children: [
+            for (var item in questionary.optionsControllers)
+              Expanded(
+                  child: Checkbox(
+                      value: _completedFormModel.questions
+                          .firstWhere((element) =>
+                              element.name ==
+                              questionary.questionsControllers[index].text)
+                          .selectedOptions
+                          .contains(item.text),
+                      onChanged: (value) {
+                        setState(() {
+                          _completedFormModel.questions
+                              .firstWhere((element) =>
+                                  element.name ==
+                                  questionary.questionsControllers[index].text)
+                              .selectedOptions = [];
+                          if (value) {
+                            _completedFormModel.questions
+                                .firstWhere((element) =>
+                                    element.name ==
+                                    questionary
+                                        .questionsControllers[index].text)
+                                .selectedOptions
+                                .add(item.text);
+                          }
+                        });
+                      }))
+          ]),
+          Padding(
+              padding: EdgeInsets.all(_formPadding / 2),
+              child: Text(questionary.questionsControllers[index].text,
+                  style: TextStyle(fontSize: 12, color: Colors.black)))
+        ]));
+  }
+
   void _completeForm() {
     if (_completedFormModel.checkList.dateTime == null &&
         _questionaryModel.isHasCheckList) {
@@ -473,6 +550,20 @@ class _FormCompletionState extends State<FormCompletion> {
       case QuestionaryFieldAbstract.paragraph:
         return _formKey.currentState.validate();
         break;
+      case QuestionaryFieldAbstract.matrix:
+        bool isMatrixValid = true;
+        (_filtredQuestionaryModel.questions[_currentQuestionId]
+                as MatrixFormField)
+            .questionsControllers
+            .forEach((elem) {
+          if (_completedFormModel.questions
+              .firstWhere((e) => e.name == elem.text)
+              .selectedOptions
+              .isEmpty) {
+            isMatrixValid = false;
+          }
+        });
+        return isMatrixValid;
       default:
         return _completedFormModel
             .questions[_currentQuestionId].selectedOptions.isNotEmpty;
@@ -543,8 +634,19 @@ class _FormCompletionState extends State<FormCompletion> {
           _lastAddedQuestion = question;
           _filtredQuestionaryModel.questions
               .insert(_currentQuestionId + 1, question);
-          _completedFormModel.questions.insert(_currentQuestionId + 1,
-              CompletedFormQuestion.fromQuestionaryFieldType(question));
+          if (question.type == QuestionaryFieldAbstract.matrix) {
+            for (var item
+                in (question as MatrixFormField).questionsControllers) {
+              CompletedFormQuestion completedItem =
+                  CompletedFormQuestion.withName(item.text);
+              _completedFormModel.questions.add(completedItem);
+            }
+          } else {
+            CompletedFormQuestion completedItem =
+                CompletedFormQuestion.fromQuestionaryFieldType(question);
+            _completedFormModel.questions
+                .insert(_currentQuestionId + 1, completedItem);
+          }
         });
       }
     }

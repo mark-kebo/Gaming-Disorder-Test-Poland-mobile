@@ -22,13 +22,28 @@ class CompletedFormModel {
     this.name = questionary.name;
     this.checkList =
         CompletedCheckList.fromQuestionaryModel(questionary.checkList);
-    this.questions = questionary.questions
-        .map((e) => CompletedFormQuestion.fromQuestionaryFieldType(e))
-        .toList();
+    this.questions = [];
+    questionary.questions.forEach((element) {
+      switch (element.type) {
+        case QuestionaryFieldAbstract.matrix:
+          for (var item in (element as MatrixFormField).questionsControllers) {
+            this.questions.add(CompletedFormQuestion.withName(item.text));
+          }
+          break;
+        default:
+          this
+              .questions
+              .add(CompletedFormQuestion.fromQuestionaryFieldType(element));
+          break;
+      }
+    });
   }
 
   bool isSuspicious() {
-    return this.questions.where((element) => element.isSoFast).isNotEmpty;//TODO: - logic with search matches here
+    return this
+        .questions
+        .where((element) => element.isSoFast)
+        .isNotEmpty; //TODO: - logic with search matches here
   }
 
   Map itemsList() {
@@ -95,6 +110,10 @@ class CompletedFormQuestion {
 
   CompletedFormQuestion.fromQuestionaryFieldType(QuestionaryFieldType field) {
     name = field.questionController.text;
+  }
+
+  CompletedFormQuestion.withName(String name) {
+    this.name = name;
   }
 
   Map itemsList() {

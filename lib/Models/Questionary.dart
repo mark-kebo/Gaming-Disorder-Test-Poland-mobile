@@ -57,6 +57,9 @@ class QuestionaryModel {
         case "slider":
           field = SliderFormField(form);
           break;
+        case "matrix":
+          field = MatrixFormField(form);
+          break;
       }
       questions.add(field);
     }
@@ -68,7 +71,8 @@ enum QuestionaryFieldAbstract {
   paragraph,
   multipleChoise,
   singleChoise,
-  slider
+  slider,
+  matrix
 }
 
 abstract class QuestionaryFieldType {
@@ -113,6 +117,49 @@ class LikertScaleFormField extends QuestionaryFieldType {
     return {
       "key": this.key,
       "question": this.questionController.text,
+      "name": this.name,
+      "options": this.optionsControllers.map((e) => e.text),
+      "keyQuestion": this.keyQuestion,
+      "keyQuestionOption": this.keyQuestionOption,
+      "minTime": this.minQuestionTime
+    };
+  }
+}
+
+class MatrixFormField extends QuestionaryFieldType {
+  QuestionaryFieldAbstract type = QuestionaryFieldAbstract.matrix;
+  String key = "matrix";
+  String name = "Matrix";
+  List<TextEditingController> questionsControllers = <TextEditingController>[];
+  List<TextEditingController> optionsControllers = <TextEditingController>[];
+  Icon icon = Icon(
+    Icons.table_rows_sharp,
+    color: Colors.deepPurple,
+  );
+
+  MatrixFormField(dynamic item) {
+    if (item != null) {
+      questionController = TextEditingController(text: "");
+      for (var option in item['options']) {
+        var textController = TextEditingController();
+        textController.text = option;
+        optionsControllers.add(textController);
+      }
+      keyQuestion = item['keyQuestion'];
+      keyQuestionOption = item['keyQuestionOption'];
+      for (var option in item['questions']) {
+        var textController = TextEditingController();
+        textController.text = option;
+        questionsControllers.add(textController);
+      }
+      minQuestionTime = item["minTime"];
+    }
+  }
+
+  Map itemsList() {
+    return {
+      "key": this.key,
+      "questions": this.questionsControllers.map((e) => e.text),
       "name": this.name,
       "options": this.optionsControllers.map((e) => e.text),
       "keyQuestion": this.keyQuestion,
