@@ -12,7 +12,6 @@ import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:gdt/Helpers/Alert.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:gdt/Pages/Dashboard/Dashboard.dart';
-import 'package:gdt/Pages/Dashboard/Tabs/Settings.dart';
 
 FirebaseFirestore firestore = FirebaseFirestore.instance;
 
@@ -295,8 +294,14 @@ class _FormCompletionState extends State<FormCompletion> {
             margin: EdgeInsets.only(bottom: _formPadding),
             child: TextFormField(
               validator: (String value) {
-                if (value.isEmpty) {
+                ParagraphFormField formField = (_filtredQuestionaryModel
+                    .questions[_currentQuestionId] as ParagraphFormField);
+                String regEx = formField.regEx ?? "";
+                bool valueValid = RegExp(r'' + regEx).hasMatch(value) ?? false;
+                if ((value ?? "").isEmpty) {
                   return ProjectStrings.answerCannotBeEmpty;
+                } else if (!valueValid) {
+                  return formField.validationError();
                 }
                 return null;
               },

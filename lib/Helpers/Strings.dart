@@ -16,6 +16,7 @@ class ProjectStrings {
   static const chooseAnswers = "Należy wybrać jedną z odpowiedzi";
   static const noQuestions = "Brak pytań";
   static const answerCannotBeEmpty = "Odpowiedź nie może być pusta";
+  static const validationSymbols = "Dopuszczalne symbole: ";
   static const enterYourAnswer = "Wpisz swoją odpowiedź";
   static const dontHaveCompletedSurveys =
       "Nie masz w tej chwili wykonanych ankiet";
@@ -75,4 +76,6 @@ class ProjectStrings {
   static const phoneNotValid = "Nieprawidłowy numer telefonu";
   static const checklist = "Checklista";
   static const completeChecklist = "Wykonaj czeklistę";
+  static const numericValues = "Liczby (np 0-9)";
+  static const charValues = "Litery i znaki interpunkcyjne (np A-Z , .)";
 }

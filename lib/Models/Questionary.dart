@@ -2,6 +2,7 @@
 
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:flutter/material.dart';
+import 'package:gdt/Helpers/Strings.dart';
 
 class QuestionaryModel {
   String id = "";
@@ -169,6 +170,8 @@ class MatrixFormField extends QuestionaryFieldType {
   }
 }
 
+enum ParagraphFormFieldValidationType { text, value }
+
 class ParagraphFormField extends QuestionaryFieldType {
   QuestionaryFieldAbstract type = QuestionaryFieldAbstract.paragraph;
   TextEditingController questionController = TextEditingController();
@@ -179,6 +182,9 @@ class ParagraphFormField extends QuestionaryFieldType {
     color: Colors.deepPurple,
   );
   List<TextEditingController> optionsControllers = <TextEditingController>[];
+  String regEx;
+  String validationType;
+  String validationSymbols;
 
   ParagraphFormField(dynamic item) {
     if (item != null) {
@@ -187,6 +193,11 @@ class ParagraphFormField extends QuestionaryFieldType {
       keyQuestion = item['keyQuestion'];
       keyQuestionOption = item['keyQuestionOption'];
       minQuestionTime = item["minTime"];
+      regEx = item["regEx"];
+      validationType = item["validationType"];
+      regEx = item["regEx"];
+      validationSymbols = item["validationSymbols"];
+      validationType = item["validationType"];
     }
   }
 
@@ -197,8 +208,31 @@ class ParagraphFormField extends QuestionaryFieldType {
       "name": this.name,
       "keyQuestion": this.keyQuestion,
       "keyQuestionOption": this.keyQuestionOption,
-      "minTime": this.minQuestionTime
+      "minTime": this.minQuestionTime,
+      "regEx": this.regEx,
+      "validationType": this.validationType,
+      "validationSymbols": this.validationSymbols
     };
+  }
+
+  String validationError() {
+    ParagraphFormFieldValidationType questionValidationType = validationType ==
+            ParagraphFormFieldValidationType.text.toString().split('.').last
+        ? ParagraphFormFieldValidationType.text
+        : ParagraphFormFieldValidationType.value;
+    if ((validationSymbols ?? "").isEmpty) {
+      switch (questionValidationType) {
+        case ParagraphFormFieldValidationType.text:
+          return ProjectStrings.charValues;
+          break;
+        case ParagraphFormFieldValidationType.value:
+          return ProjectStrings.numericValues;
+          break;
+      }
+      return ProjectStrings.answerCannotBeEmpty;
+    } else {
+      return ProjectStrings.validationSymbols + this.validationSymbols;
+    }
   }
 }
 
