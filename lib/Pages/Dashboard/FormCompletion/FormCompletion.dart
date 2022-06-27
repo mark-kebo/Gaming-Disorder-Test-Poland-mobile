@@ -1,6 +1,7 @@
 // @dart=2.9
 
 import 'dart:async';
+import 'dart:typed_data';
 
 import 'package:flutter/material.dart';
 import 'package:gdt/Helpers/Constants.dart';
@@ -12,6 +13,8 @@ import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:gdt/Helpers/Alert.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:gdt/Pages/Dashboard/Dashboard.dart';
+
+import 'FullScreenImagePage.dart';
 
 FirebaseFirestore firestore = FirebaseFirestore.instance;
 
@@ -249,17 +252,32 @@ class _FormCompletionState extends State<FormCompletion> {
             child: new Column(
                 crossAxisAlignment: CrossAxisAlignment.start,
                 children: <Widget>[
-                  Padding(
-                      padding: EdgeInsets.only(bottom: _formPadding),
-                      child: Text(
-                          (_currentQuestionId + 1).toString() +
-                              ". " +
-                              _filtredQuestionaryModel
-                                  .questions[_currentQuestionId]
-                                  .questionController
-                                  .text,
-                          style: TextStyle(fontSize: 14, color: Colors.black))),
+                  (_filtredQuestionaryModel.questions[_currentQuestionId]
+                                  .questionController.text ??
+                              "")
+                          .isEmpty
+                      ? SizedBox()
+                      : Padding(
+                          padding: EdgeInsets.only(bottom: _formPadding),
+                          child: Text(
+                              (_currentQuestionId + 1).toString() +
+                                  ". " +
+                                  _filtredQuestionaryModel
+                                      .questions[_currentQuestionId]
+                                      .questionController
+                                      .text,
+                              style: TextStyle(
+                                  fontSize: 14, color: Colors.black))),
                   matrixHeader,
+                  (_filtredQuestionaryModel
+                                  .questions[_currentQuestionId].image ??
+                              Uint8List(0))
+                          .isEmpty
+                      ? SizedBox()
+                      : _questionImage(
+                          _filtredQuestionaryModel
+                              .questions[_currentQuestionId],
+                          _currentQuestionId),
                   Form(
                     key: _formKey,
                     child: _questionsList(),
@@ -613,6 +631,42 @@ class _FormCompletionState extends State<FormCompletion> {
             .questions[_currentCompletedQuestionId].selectedOptions.isNotEmpty;
         break;
     }
+  }
+
+  Widget _questionImage(QuestionaryFieldType fieldType, int index) {
+    double imageSize = fieldType.questionController.text.isEmpty ? 160 : 80;
+    return Row(mainAxisAlignment: MainAxisAlignment.start, children: [
+      Container(
+        height: imageSize,
+        width: imageSize,
+        child: fieldType.image.isEmpty
+            ? SizedBox()
+            : Image.memory(fieldType.image),
+      ),
+      SizedBox(height: _formPadding / 2, width: _formPadding / 2),
+      Container(
+          height: imageSize,
+          child: Align(
+              alignment: Alignment.topRight,
+              child: IconButton(
+                  icon: Icon(Icons.photo_size_select_large, color: Colors.deepPurple),
+                  onPressed: () {
+                    print("show image");
+                    Navigator.push(
+          context,
+          PageRouteBuilder(
+            opaque: false,
+            barrierColor: Colors.white,
+            pageBuilder: (BuildContext context, _, __) {
+              return FullScreenImagePage(
+                child: Image.memory(fieldType.image),
+                dark: true,
+              );
+            },
+          ),
+        );
+                  })))
+    ]);
   }
 
   void _showCheckList() {

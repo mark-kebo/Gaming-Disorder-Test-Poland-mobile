@@ -1,5 +1,7 @@
 // @dart=2.9
 
+import 'dart:typed_data';
+
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:flutter/material.dart';
 import 'package:gdt/Helpers/Strings.dart';
@@ -88,6 +90,7 @@ abstract class QuestionaryFieldType {
   String keyQuestion = "";
   String keyQuestionOption = "";
   int minQuestionTime = 0;
+  Uint8List image;
 }
 
 class LikertScaleFormField extends QuestionaryFieldType {
@@ -113,11 +116,17 @@ class LikertScaleFormField extends QuestionaryFieldType {
       questionController.text = item["question"];
       minQuestionTime = item["minTime"];
       instructions = item["instructions"];
+      if (item["image"] != "null" && item["image"].toString().isNotEmpty) {
+        image = Uint8List.fromList(item["image"].toString().codeUnits);
+      } else {
+        image = Uint8List(0);
+      }
     }
   }
 
   Map itemsList() {
     return {
+      "image": String.fromCharCodes(this.image),
       "instructions": this.instructions,
       "key": this.key,
       "question": this.questionController.text,
@@ -158,11 +167,17 @@ class MatrixFormField extends QuestionaryFieldType {
       }
       minQuestionTime = item["minTime"];
       instructions = item["instructions"];
+      if (item["image"] != "null" && item["image"].toString().isNotEmpty) {
+        image = Uint8List.fromList(item["image"].toString().codeUnits);
+      } else {
+        image = Uint8List(0);
+      }
     }
   }
 
   Map itemsList() {
     return {
+      "image": String.fromCharCodes(this.image),
       "instructions": this.instructions,
       "key": this.key,
       "questions": this.questionsControllers.map((e) => e.text),
@@ -203,11 +218,17 @@ class ParagraphFormField extends QuestionaryFieldType {
       validationSymbols = item["validationSymbols"];
       validationType = item["validationType"];
       instructions = item["instructions"];
+      if (item["image"] != "null" && item["image"].toString().isNotEmpty) {
+        image = Uint8List.fromList(item["image"].toString().codeUnits);
+      } else {
+        image = Uint8List(0);
+      }
     }
   }
 
   Map itemsList() {
     return {
+      "image": String.fromCharCodes(this.image),
       "instructions": this.instructions,
       "key": this.key,
       "question": this.questionController.text,
@@ -265,11 +286,17 @@ class MultipleChoiseFormField extends QuestionaryFieldType {
       keyQuestionOption = item['keyQuestionOption'];
       minQuestionTime = item["minTime"];
       instructions = item["instructions"];
+      if (item["image"] != "null" && item["image"].toString().isNotEmpty) {
+        image = Uint8List.fromList(item["image"].toString().codeUnits);
+      } else {
+        image = Uint8List(0);
+      }
     }
   }
 
   Map itemsList() {
     return {
+      "image": String.fromCharCodes(this.image),
       "instructions": this.instructions,
       "key": this.key,
       "question": this.questionController.text,
@@ -307,11 +334,17 @@ class SingleChoiseFormField extends QuestionaryFieldType {
       isKeyQuestion = item["isKeyQuestion"];
       minQuestionTime = item["minTime"];
       instructions = item["instructions"];
+      if (item["image"] != "null" && item["image"].toString().isNotEmpty) {
+        image = Uint8List.fromList(item["image"].toString().codeUnits);
+      } else {
+        image = Uint8List(0);
+      }
     }
   }
 
   Map itemsList() {
     return {
+      "image": String.fromCharCodes(this.image),
       "instructions": this.instructions,
       "key": this.key,
       "question": this.questionController.text,
@@ -352,11 +385,17 @@ class SliderFormField extends QuestionaryFieldType {
       digitStep = item["digitStep"];
       maxDigit = item["maxDigit"];
       instructions = item["instructions"];
+      if (item["image"] != "null" && item["image"].toString().isNotEmpty) {
+        image = Uint8List.fromList(item["image"].toString().codeUnits);
+      } else {
+        image = Uint8List(0);
+      }
     }
   }
 
   Map itemsList() {
     return {
+      "image": String.fromCharCodes(this.image),
       "instructions": this.instructions,
       "key": this.key,
       "question": this.questionController.text,
