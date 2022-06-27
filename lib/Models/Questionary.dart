@@ -80,6 +80,7 @@ abstract class QuestionaryFieldType {
   QuestionaryFieldAbstract type;
   String key;
   String name;
+  String instructions;
   TextEditingController questionController;
   List<TextEditingController> optionsControllers;
   Map itemsList();
@@ -111,11 +112,13 @@ class LikertScaleFormField extends QuestionaryFieldType {
       keyQuestionOption = item['keyQuestionOption'];
       questionController.text = item["question"];
       minQuestionTime = item["minTime"];
+      instructions = item["instructions"];
     }
   }
 
   Map itemsList() {
     return {
+      "instructions": this.instructions,
       "key": this.key,
       "question": this.questionController.text,
       "name": this.name,
@@ -154,11 +157,13 @@ class MatrixFormField extends QuestionaryFieldType {
         questionsControllers.add(textController);
       }
       minQuestionTime = item["minTime"];
+      instructions = item["instructions"];
     }
   }
 
   Map itemsList() {
     return {
+      "instructions": this.instructions,
       "key": this.key,
       "questions": this.questionsControllers.map((e) => e.text),
       "name": this.name,
@@ -188,21 +193,22 @@ class ParagraphFormField extends QuestionaryFieldType {
 
   ParagraphFormField(dynamic item) {
     if (item != null) {
+      optionsControllers = [];
       optionsControllers.add(TextEditingController());
       questionController.text = item["question"];
       keyQuestion = item['keyQuestion'];
       keyQuestionOption = item['keyQuestionOption'];
       minQuestionTime = item["minTime"];
       regEx = item["regEx"];
-      validationType = item["validationType"];
-      regEx = item["regEx"];
       validationSymbols = item["validationSymbols"];
       validationType = item["validationType"];
+      instructions = item["instructions"];
     }
   }
 
   Map itemsList() {
     return {
+      "instructions": this.instructions,
       "key": this.key,
       "question": this.questionController.text,
       "name": this.name,
@@ -258,11 +264,13 @@ class MultipleChoiseFormField extends QuestionaryFieldType {
       keyQuestion = item['keyQuestion'];
       keyQuestionOption = item['keyQuestionOption'];
       minQuestionTime = item["minTime"];
+      instructions = item["instructions"];
     }
   }
 
   Map itemsList() {
     return {
+      "instructions": this.instructions,
       "key": this.key,
       "question": this.questionController.text,
       "name": this.name,
@@ -298,11 +306,13 @@ class SingleChoiseFormField extends QuestionaryFieldType {
       keyQuestionOption = item['keyQuestionOption'];
       isKeyQuestion = item["isKeyQuestion"];
       minQuestionTime = item["minTime"];
+      instructions = item["instructions"];
     }
   }
 
   Map itemsList() {
     return {
+      "instructions": this.instructions,
       "key": this.key,
       "question": this.questionController.text,
       "name": this.name,
@@ -341,11 +351,13 @@ class SliderFormField extends QuestionaryFieldType {
       minQuestionTime = item["minTime"];
       digitStep = item["digitStep"];
       maxDigit = item["maxDigit"];
+      instructions = item["instructions"];
     }
   }
 
   Map itemsList() {
     return {
+      "instructions": this.instructions,
       "key": this.key,
       "question": this.questionController.text,
       "name": this.name,

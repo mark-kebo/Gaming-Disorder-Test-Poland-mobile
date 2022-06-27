@@ -51,6 +51,7 @@ class _FormCompletionState extends State<FormCompletion> {
   QuestionaryFieldType _lastAddedQuestion;
 
   int _currentQuestionId = 0;
+  int _currentCompletedQuestionId = 0;
   bool _isShowLoading = false;
 
   _FormCompletionState(QuestionaryModel questionaryModel) {
@@ -70,6 +71,9 @@ class _FormCompletionState extends State<FormCompletion> {
 
   @override
   Widget build(BuildContext context) {
+    String instructions =
+        _filtredQuestionaryModel.questions[_currentQuestionId].instructions ??
+            "";
     return MaterialApp(
         title: ProjectStrings.projectName,
         theme: ThemeData(
@@ -80,11 +84,13 @@ class _FormCompletionState extends State<FormCompletion> {
             body: Padding(
                 padding: EdgeInsets.all(_formPadding),
                 child: new Column(children: <Widget>[
-                  Padding(
-                      padding: EdgeInsets.only(bottom: _formPadding),
-                      child: Text(_filtredQuestionaryModel.description ?? "",
-                          style:
-                              TextStyle(fontSize: 12, color: Colors.black87))),
+                  instructions.isEmpty
+                      ? SizedBox()
+                      : Padding(
+                          padding: EdgeInsets.only(bottom: _formPadding),
+                          child: Text(instructions,
+                              style: TextStyle(
+                                  fontSize: 12, color: Colors.black87))),
                   _formWidget(),
                   new Stack(children: <Widget>[
                     Visibility(
@@ -97,7 +103,19 @@ class _FormCompletionState extends State<FormCompletion> {
                               shape: CircleBorder(),
                               onPressed: () {
                                 setState(() {
+                                  if (_filtredQuestionaryModel
+                                          .questions[_currentQuestionId].type ==
+                                      QuestionaryFieldAbstract.matrix) {
+                                    _currentCompletedQuestionId -=
+                                        (_filtredQuestionaryModel.questions[
+                                                        _currentQuestionId]
+                                                    as MatrixFormField)
+                                                .questionsControllers
+                                                .length -
+                                            1;
+                                  }
                                   --_currentQuestionId;
+                                  --_currentCompletedQuestionId;
                                 });
                               })),
                       visible: _currentQuestionId != 0,
@@ -127,6 +145,20 @@ class _FormCompletionState extends State<FormCompletion> {
                                       setState(() {
                                         _saveAnswer();
                                         ++_currentQuestionId;
+                                        ++_currentCompletedQuestionId;
+                                        if (_filtredQuestionaryModel
+                                                .questions[_currentQuestionId]
+                                                .type ==
+                                            QuestionaryFieldAbstract.matrix) {
+                                          _currentCompletedQuestionId +=
+                                              (_filtredQuestionaryModel
+                                                                  .questions[
+                                                              _currentQuestionId]
+                                                          as MatrixFormField)
+                                                      .questionsControllers
+                                                      .length -
+                                                  1;
+                                        }
                                       });
                                     }
                                   } else if (_filtredQuestionaryModel
@@ -178,14 +210,15 @@ class _FormCompletionState extends State<FormCompletion> {
   }
 
   Widget _formWidget() {
-    if (_completedFormModel.questions[_currentQuestionId].isSoFast) {
+    if (_completedFormModel.questions[_currentCompletedQuestionId].isSoFast) {
       var seconds = _filtredQuestionaryModel
               .questions[_currentQuestionId].minQuestionTime ??
           ProjectConstants.defaultQuestionSec;
       _timer = Timer(Duration(seconds: seconds), () {
         print(seconds);
         print("isSoFast = false");
-        _completedFormModel.questions[_currentQuestionId].isSoFast = false;
+        _completedFormModel.questions[_currentCompletedQuestionId].isSoFast =
+            false;
       });
     }
     var matrixHeader =
@@ -260,7 +293,8 @@ class _FormCompletionState extends State<FormCompletion> {
 
   Widget _likertScaleWidget() {
     var questionary = _filtredQuestionaryModel.questions[_currentQuestionId];
-    var completedModel = _completedFormModel.questions[_currentQuestionId];
+    var completedModel =
+        _completedFormModel.questions[_currentCompletedQuestionId];
     return Expanded(
         child: ListView.builder(
             itemCount: questionary.optionsControllers.length,
@@ -321,7 +355,8 @@ class _FormCompletionState extends State<FormCompletion> {
 
   Widget _multipleChoiseWidget() {
     var questionary = _filtredQuestionaryModel.questions[_currentQuestionId];
-    var completedModel = _completedFormModel.questions[_currentQuestionId];
+    var completedModel =
+        _completedFormModel.questions[_currentCompletedQuestionId];
     return Expanded(
         child: ListView.builder(
             itemCount: questionary.optionsControllers.length,
@@ -353,7 +388,8 @@ class _FormCompletionState extends State<FormCompletion> {
 
   Widget _singleChoiseWidget() {
     var questionary = _filtredQuestionaryModel.questions[_currentQuestionId];
-    var completedModel = _completedFormModel.questions[_currentQuestionId];
+    var completedModel =
+        _completedFormModel.questions[_currentCompletedQuestionId];
     return Expanded(
         child: ListView.builder(
             itemCount: questionary.optionsControllers.length,
@@ -384,16 +420,17 @@ class _FormCompletionState extends State<FormCompletion> {
     var questionary = _filtredQuestionaryModel.questions[_currentQuestionId]
         as SliderFormField;
     double minValue = 1;
-    if (_completedFormModel.questions[_currentQuestionId].selectedOptions !=
+    if (_completedFormModel
+                .questions[_currentCompletedQuestionId].selectedOptions !=
             null &&
-        _completedFormModel
-            .questions[_currentQuestionId].selectedOptions.isNotEmpty) {
+        _completedFormModel.questions[_currentCompletedQuestionId]
+            .selectedOptions.isNotEmpty) {
     } else {
-      _completedFormModel.questions[_currentQuestionId].selectedOptions
+      _completedFormModel.questions[_currentCompletedQuestionId].selectedOptions
           .add(minValue.toString());
     }
     var value = double.parse(_completedFormModel
-        .questions[_currentQuestionId].selectedOptions.first);
+        .questions[_currentCompletedQuestionId].selectedOptions.first);
     return Column(children: [
       Slider(
         value: value,
@@ -403,8 +440,8 @@ class _FormCompletionState extends State<FormCompletion> {
         label: value.round().toString(),
         onChanged: (double value) {
           setState(() {
-            _completedFormModel.questions[_currentQuestionId].selectedOptions =
-                [value.round().toString()];
+            _completedFormModel.questions[_currentCompletedQuestionId]
+                .selectedOptions = [value.round().toString()];
           });
         },
       ),
@@ -440,6 +477,7 @@ class _FormCompletionState extends State<FormCompletion> {
   }
 
   Widget _matrixFieldWidget(MatrixFormField questionary, int index) {
+    print("----$_currentCompletedQuestionId ----$_currentQuestionId");
     return new Container(
         margin:
             EdgeInsets.only(bottom: _formPadding / 4, top: _formPadding / 4),
@@ -538,8 +576,9 @@ class _FormCompletionState extends State<FormCompletion> {
   void _saveAnswer() {
     switch (_filtredQuestionaryModel.questions[_currentQuestionId].type) {
       case QuestionaryFieldAbstract.paragraph:
-        _completedFormModel.questions[_currentQuestionId].selectedOptions.add(
-            _filtredQuestionaryModel
+        _completedFormModel
+            .questions[_currentCompletedQuestionId].selectedOptions
+            .add(_filtredQuestionaryModel
                 .questions[_currentQuestionId].optionsControllers.first.text);
         break;
       case QuestionaryFieldAbstract.singleChoise:
@@ -571,7 +610,7 @@ class _FormCompletionState extends State<FormCompletion> {
         return isMatrixValid;
       default:
         return _completedFormModel
-            .questions[_currentQuestionId].selectedOptions.isNotEmpty;
+            .questions[_currentCompletedQuestionId].selectedOptions.isNotEmpty;
         break;
     }
   }
@@ -617,7 +656,8 @@ class _FormCompletionState extends State<FormCompletion> {
     var question = _filtredQuestionaryModel.questions[_currentQuestionId]
         as SingleChoiseFormField;
     print(_filtredQuestionaryModel.questions.length);
-    var completedQuestion = _completedFormModel.questions[_currentQuestionId];
+    var completedQuestion =
+        _completedFormModel.questions[_currentCompletedQuestionId];
     if (question.isKeyQuestion) {
       var question = _questionaryModel.questions.firstWhere(
           (element) =>
@@ -630,7 +670,7 @@ class _FormCompletionState extends State<FormCompletion> {
               _lastAddedQuestion) {
         _lastAddedQuestion = null;
         _filtredQuestionaryModel.questions.removeAt(_currentQuestionId + 1);
-        _completedFormModel.questions.removeAt(_currentQuestionId + 1);
+        _completedFormModel.questions.removeAt(_currentCompletedQuestionId + 1);
       }
       if (question != null &&
           _filtredQuestionaryModel.questions[_currentQuestionId + 1] !=
@@ -650,7 +690,7 @@ class _FormCompletionState extends State<FormCompletion> {
             CompletedFormQuestion completedItem =
                 CompletedFormQuestion.fromQuestionaryFieldType(question);
             _completedFormModel.questions
-                .insert(_currentQuestionId + 1, completedItem);
+                .insert(_currentCompletedQuestionId + 1, completedItem);
           }
         });
       }
