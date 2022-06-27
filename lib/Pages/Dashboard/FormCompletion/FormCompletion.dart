@@ -634,7 +634,7 @@ class _FormCompletionState extends State<FormCompletion> {
   }
 
   Widget _questionImage(QuestionaryFieldType fieldType, int index) {
-    double imageSize = fieldType.questionController.text.isEmpty ? 160 : 80;
+    double imageSize = fieldType.questionController.text.isEmpty ? 180 : 100;
     return Row(mainAxisAlignment: MainAxisAlignment.start, children: [
       Container(
         height: imageSize,
