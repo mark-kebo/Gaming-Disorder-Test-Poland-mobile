@@ -76,7 +76,7 @@ class _CompletedFormAnswersState extends State<CompletedFormAnswers> {
               return ListTile(
                   title: Text(
                       (index + 1).toString() + ". " + questions[index].name),
-                  subtitle: Text(questions[index].selectedOptions.join(", ")));
+                  subtitle: Text(questions[index].selectedOptions.map((e) => e.text).join(", ")));
             });
   }
 }

@@ -78,4 +78,5 @@ class ProjectStrings {
   static const completeChecklist = "Wykonaj czeklistę";
   static const numericValues = "Liczby (np 0-9)";
   static const charValues = "Litery i znaki interpunkcyjne (np A-Z , .)";
+  static const otherOption = "“Inne”";
 }

@@ -268,7 +268,6 @@ class _FormCompletionState extends State<FormCompletion> {
                                       .text,
                               style: TextStyle(
                                   fontSize: 14, color: Colors.black))),
-                  matrixHeader,
                   (_filtredQuestionaryModel
                                   .questions[_currentQuestionId].image ??
                               Uint8List(0))
@@ -278,6 +277,7 @@ class _FormCompletionState extends State<FormCompletion> {
                           _filtredQuestionaryModel
                               .questions[_currentQuestionId],
                           _currentQuestionId),
+                  matrixHeader,
                   Form(
                     key: _formKey,
                     child: _questionsList(),
@@ -321,14 +321,18 @@ class _FormCompletionState extends State<FormCompletion> {
                   padding: const EdgeInsets.all(0),
                   child: new Container(
                       child: CheckboxListTile(
-                          value: completedModel.selectedOptions.contains(
-                              questionary.optionsControllers[index].text),
+                          value: completedModel.selectedOptions
+                              .map((e) => e.text)
+                              .contains(
+                                  questionary.optionsControllers[index].text),
                           onChanged: (value) {
                             setState(() {
                               completedModel.selectedOptions = [];
                               if (value) {
                                 completedModel.selectedOptions.add(
-                                    questionary.optionsControllers[index].text);
+                                    CompletedFormSelectedOptionQuestion(
+                                        questionary
+                                            .optionsControllers[index].text));
                               }
                             });
                           },
@@ -372,35 +376,78 @@ class _FormCompletionState extends State<FormCompletion> {
   }
 
   Widget _multipleChoiseWidget() {
-    var questionary = _filtredQuestionaryModel.questions[_currentQuestionId];
+    var questionary = _filtredQuestionaryModel.questions[_currentQuestionId]
+        as MultipleChoiseFormField;
     var completedModel =
         _completedFormModel.questions[_currentCompletedQuestionId];
     return Expanded(
         child: ListView.builder(
             itemCount: questionary.optionsControllers.length,
             itemBuilder: (BuildContext context, int index) {
+              bool isOtherOption =
+                  questionary.optionsControllers.length - 1 == index &&
+                      questionary.isHasOtherOption;
               return Padding(
                   padding: const EdgeInsets.all(0),
                   child: new Container(
                       child: CheckboxListTile(
-                          value: completedModel.selectedOptions.contains(
-                              questionary.optionsControllers[index].text),
+                          value: isOtherOption
+                              ? questionary.isOtherOptionSelected
+                              : completedModel.selectedOptions
+                                  .map((e) => e.text)
+                                  .contains(questionary
+                                      .optionsControllers[index].text),
                           onChanged: (value) {
                             setState(() {
-                              if (completedModel.selectedOptions.contains(
-                                  questionary.optionsControllers[index].text)) {
-                                completedModel.selectedOptions.remove(
-                                    questionary.optionsControllers[index].text);
+                              if (isOtherOption) {
+                                if (questionary.isOtherOptionSelected) {
+                                  completedModel.selectedOptions.remove(
+                                      completedModel.selectedOptions.firstWhere(
+                                          (element) => element.isOther));
+                                } else {
+                                  completedModel.selectedOptions.add(
+                                      CompletedFormSelectedOptionQuestion.other(
+                                          questionary
+                                              .optionsControllers[index].text,
+                                          true));
+                                }
+                                questionary.isOtherOptionSelected =
+                                    !questionary.isOtherOptionSelected;
+                              } else if (completedModel.selectedOptions
+                                  .map((e) => e.text)
+                                  .contains(questionary
+                                      .optionsControllers[index].text)) {
+                                completedModel.selectedOptions.removeWhere(
+                                    (element) =>
+                                        questionary
+                                            .optionsControllers[index].text ==
+                                        element.text);
                               } else {
                                 completedModel.selectedOptions.add(
-                                    questionary.optionsControllers[index].text);
+                                    CompletedFormSelectedOptionQuestion(
+                                        questionary
+                                            .optionsControllers[index].text));
                               }
                             });
                           },
-                          title: Text(
-                              questionary.optionsControllers[index].text,
-                              style: TextStyle(
-                                  fontSize: 12, color: Colors.black)))));
+                          title: isOtherOption
+                              ? TextFormField(
+                                  controller:
+                                      questionary.optionsControllers.last,
+                                  keyboardType: TextInputType.text,
+                                  onChanged: (value) {
+                                    setState(() {
+                                      completedModel.selectedOptions
+                                          .firstWhere(
+                                              (element) => element.isOther)
+                                          .text = value;
+                                    });
+                                  },
+                                  decoration: InputDecoration(
+                                      hintText: ProjectStrings.otherOption))
+                              : Text(questionary.optionsControllers[index].text,
+                                  style: TextStyle(
+                                      fontSize: 12, color: Colors.black)))));
             }));
   }
 
@@ -416,14 +463,18 @@ class _FormCompletionState extends State<FormCompletion> {
                   padding: const EdgeInsets.all(0),
                   child: new Container(
                       child: CheckboxListTile(
-                          value: completedModel.selectedOptions.contains(
-                              questionary.optionsControllers[index].text),
+                          value: completedModel.selectedOptions
+                              .map((e) => e.text)
+                              .contains(
+                                  questionary.optionsControllers[index].text),
                           onChanged: (value) {
                             setState(() {
                               completedModel.selectedOptions = [];
                               if (value) {
                                 completedModel.selectedOptions.add(
-                                    questionary.optionsControllers[index].text);
+                                    CompletedFormSelectedOptionQuestion(
+                                        questionary
+                                            .optionsControllers[index].text));
                               }
                             });
                           },
@@ -445,10 +496,10 @@ class _FormCompletionState extends State<FormCompletion> {
             .selectedOptions.isNotEmpty) {
     } else {
       _completedFormModel.questions[_currentCompletedQuestionId].selectedOptions
-          .add(minValue.toString());
+          .add(CompletedFormSelectedOptionQuestion(minValue.toString()));
     }
     var value = double.parse(_completedFormModel
-        .questions[_currentCompletedQuestionId].selectedOptions.first);
+        .questions[_currentCompletedQuestionId].selectedOptions.first.text);
     return Column(children: [
       Slider(
         value: value,
@@ -458,8 +509,10 @@ class _FormCompletionState extends State<FormCompletion> {
         label: value.round().toString(),
         onChanged: (double value) {
           setState(() {
-            _completedFormModel.questions[_currentCompletedQuestionId]
-                .selectedOptions = [value.round().toString()];
+            _completedFormModel
+                .questions[_currentCompletedQuestionId].selectedOptions = [
+              CompletedFormSelectedOptionQuestion(value.round().toString())
+            ];
           });
         },
       ),
@@ -516,6 +569,7 @@ class _FormCompletionState extends State<FormCompletion> {
                               element.name ==
                               questionary.questionsControllers[index].text)
                           .selectedOptions
+                          .map((e) => e.text)
                           .contains(item.text),
                       onChanged: (value) {
                         setState(() {
@@ -531,7 +585,8 @@ class _FormCompletionState extends State<FormCompletion> {
                                     questionary
                                         .questionsControllers[index].text)
                                 .selectedOptions
-                                .add(item.text);
+                                .add(CompletedFormSelectedOptionQuestion(
+                                    item.text));
                           }
                         });
                       }))
@@ -596,8 +651,8 @@ class _FormCompletionState extends State<FormCompletion> {
       case QuestionaryFieldAbstract.paragraph:
         _completedFormModel
             .questions[_currentCompletedQuestionId].selectedOptions
-            .add(_filtredQuestionaryModel
-                .questions[_currentQuestionId].optionsControllers.first.text);
+            .add(CompletedFormSelectedOptionQuestion(_filtredQuestionaryModel
+                .questions[_currentQuestionId].optionsControllers.first.text));
         break;
       case QuestionaryFieldAbstract.singleChoise:
         _filterQuestionsByKey();
@@ -634,7 +689,10 @@ class _FormCompletionState extends State<FormCompletion> {
   }
 
   Widget _questionImage(QuestionaryFieldType fieldType, int index) {
-    double imageSize = fieldType.questionController.text.isEmpty ? 180 : 100;
+    double imageSize = fieldType.questionController.text.isEmpty &&
+            fieldType.type != QuestionaryFieldAbstract.matrix
+        ? 180
+        : 100;
     return Row(mainAxisAlignment: MainAxisAlignment.start, children: [
       Container(
         height: imageSize,
@@ -649,22 +707,23 @@ class _FormCompletionState extends State<FormCompletion> {
           child: Align(
               alignment: Alignment.topRight,
               child: IconButton(
-                  icon: Icon(Icons.photo_size_select_large, color: Colors.deepPurple),
+                  icon: Icon(Icons.photo_size_select_large,
+                      color: Colors.deepPurple),
                   onPressed: () {
                     print("show image");
                     Navigator.push(
-          context,
-          PageRouteBuilder(
-            opaque: false,
-            barrierColor: Colors.white,
-            pageBuilder: (BuildContext context, _, __) {
-              return FullScreenImagePage(
-                child: Image.memory(fieldType.image),
-                dark: true,
-              );
-            },
-          ),
-        );
+                      context,
+                      PageRouteBuilder(
+                        opaque: false,
+                        barrierColor: Colors.white,
+                        pageBuilder: (BuildContext context, _, __) {
+                          return FullScreenImagePage(
+                            child: Image.memory(fieldType.image),
+                            dark: true,
+                          );
+                        },
+                      ),
+                    );
                   })))
     ]);
   }
@@ -716,7 +775,7 @@ class _FormCompletionState extends State<FormCompletion> {
       var question = _questionaryModel.questions.firstWhere(
           (element) =>
               completedQuestion.name == element.keyQuestion &&
-              completedQuestion.selectedOptions.first ==
+              completedQuestion.selectedOptions.first.text ==
                   element.keyQuestionOption,
           orElse: () => null);
       if (question == null &&

@@ -99,13 +99,15 @@ class CompletedCheckList {
 class CompletedFormQuestion {
   String name = "";
   bool isSoFast = true;
-  List<String> selectedOptions = <String>[];
+  List<CompletedFormSelectedOptionQuestion> selectedOptions =
+      <CompletedFormSelectedOptionQuestion>[];
 
   CompletedFormQuestion(dynamic object) {
     name = object["name"];
     isSoFast = object["isSoFast"];
-    selectedOptions =
-        (object["selectedOptions"] as List).map((e) => e as String).toList();
+    selectedOptions = (object["selectedOptions"] as List)
+        .map((e) => CompletedFormSelectedOptionQuestion(e as String))
+        .toList();
   }
 
   CompletedFormQuestion.fromQuestionaryFieldType(QuestionaryFieldType field) {
@@ -120,7 +122,21 @@ class CompletedFormQuestion {
     return {
       "name": this.name,
       "isSoFast": this.isSoFast,
-      "selectedOptions": this.selectedOptions.map((e) => e).toList()
+      "selectedOptions": this.selectedOptions.map((e) => e.text).toList()
     };
+  }
+}
+
+class CompletedFormSelectedOptionQuestion {
+  String text = "";
+  bool isOther = false;
+
+  CompletedFormSelectedOptionQuestion(String text) {
+    this.text = text;
+  }
+
+  CompletedFormSelectedOptionQuestion.other(String text, bool isOther) {
+    this.text = text;
+    this.isOther = isOther;
   }
 }

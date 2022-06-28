@@ -273,13 +273,19 @@ class MultipleChoiseFormField extends QuestionaryFieldType {
     Icons.check_box_outlined,
     color: Colors.deepPurple,
   );
+  bool isHasOtherOption = false;
+  bool isOtherOptionSelected = false;
 
   MultipleChoiseFormField(dynamic item) {
     if (item != null) {
+      isHasOtherOption = item["isHasOtherOption"];
       for (var option in item['options']) {
         var textController = TextEditingController();
         textController.text = option;
         optionsControllers.add(textController);
+      }
+      if (isHasOtherOption) {
+        optionsControllers.add(TextEditingController());
       }
       questionController.text = item["question"];
       keyQuestion = item['keyQuestion'];
@@ -296,6 +302,7 @@ class MultipleChoiseFormField extends QuestionaryFieldType {
 
   Map itemsList() {
     return {
+      "isHasOtherOption": isHasOtherOption,
       "image": String.fromCharCodes(this.image),
       "instructions": this.instructions,
       "key": this.key,
