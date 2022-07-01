@@ -3,6 +3,7 @@
 import 'dart:async';
 import 'dart:typed_data';
 
+import 'package:drag_and_drop_lists/drag_and_drop_lists.dart';
 import 'package:flutter/material.dart';
 import 'package:gdt/Helpers/Constants.dart';
 import 'package:gdt/Helpers/Strings.dart';
@@ -52,6 +53,7 @@ class _FormCompletionState extends State<FormCompletion> {
   );
 
   QuestionaryFieldType _lastAddedQuestion;
+  List<DragAndDropList> _dragAndDropListContents;
 
   int _currentQuestionId = 0;
   int _currentCompletedQuestionId = 0;
@@ -305,6 +307,9 @@ class _FormCompletionState extends State<FormCompletion> {
       case QuestionaryFieldAbstract.matrix:
         return _matrixWidget();
         break;
+      case QuestionaryFieldAbstract.dragAndDrop:
+        return _dragAndDropWidget();
+        break;
     }
     return Text(ProjectStrings.noQuestions);
   }
@@ -373,6 +378,75 @@ class _FormCompletionState extends State<FormCompletion> {
                   disabledBorder: InputBorder.none,
                   hintText: ProjectStrings.enterYourAnswer),
             )));
+  }
+
+  void _prepareDragAndDropWidget() {
+    if ((_filtredQuestionaryModel.questions[_currentQuestionId].type) ==
+        QuestionaryFieldAbstract.dragAndDrop) {
+      var questionary = _filtredQuestionaryModel.questions[_currentQuestionId];
+      List<DragAndDropItem> dragAndDropOptions = questionary.optionsControllers
+          .map((e) => DragAndDropItem(
+              child: Container(
+                  margin: EdgeInsets.only(
+                      bottom: _formPadding / 4, top: _formPadding / 4),
+                  decoration: new BoxDecoration(
+                      color: Colors.grey[100],
+                      borderRadius: new BorderRadius.only(
+                          topLeft: _containerCornerRadius,
+                          topRight: _containerCornerRadius,
+                          bottomLeft: _containerCornerRadius,
+                          bottomRight: _containerCornerRadius)),
+                  child: ListTile(
+                      trailing: Icon(Icons.drag_handle_outlined),
+                      title: Text(
+                        e.text,
+                        style: TextStyle(fontSize: 12, color: Colors.black),
+                      )))))
+          .toList();
+      _dragAndDropListContents = List.generate(1, (index) {
+        return DragAndDropList(
+          children: dragAndDropOptions,
+        );
+      });
+    }
+  }
+
+  Widget _dragAndDropWidget() {
+    if ((_dragAndDropListContents ?? []).isEmpty) {
+      _prepareDragAndDropWidget();
+    }
+    return Expanded(
+        child: DragAndDropLists(
+            children: _dragAndDropListContents, onItemReorder: _onItemReorder));
+  }
+
+  _onItemReorder(
+      int oldItemIndex, int oldListIndex, int newItemIndex, int newListIndex) {
+    var questionary = _filtredQuestionaryModel.questions[_currentQuestionId];
+    setState(() {
+      var movedQuestionaryItem =
+          questionary.optionsControllers.removeAt(oldItemIndex);
+      questionary.optionsControllers.insert(newItemIndex, movedQuestionaryItem);
+      var movedItem = _dragAndDropListContents[oldListIndex]
+          .children
+          .removeAt(oldItemIndex);
+      _dragAndDropListContents[newListIndex]
+          .children
+          .insert(newItemIndex, movedItem);
+    });
+    var completedModel =
+        _completedFormModel.questions[_currentCompletedQuestionId];
+    String selectedOption = "";
+    for (var i = 0; i < questionary.optionsControllers.length; i++) {
+      int index = i + 1;
+      String devider =
+          (index == questionary.optionsControllers.length) ? "" : ",    ";
+      selectedOption +=
+          "[$index]: " + questionary.optionsControllers[i].text + devider;
+    }
+    completedModel.selectedOptions = [
+      CompletedFormSelectedOptionQuestion(selectedOption)
+    ];
   }
 
   Widget _multipleChoiseWidget() {
@@ -548,7 +622,6 @@ class _FormCompletionState extends State<FormCompletion> {
   }
 
   Widget _matrixFieldWidget(MatrixFormField questionary, int index) {
-    print("----$_currentCompletedQuestionId ----$_currentQuestionId");
     return new Container(
         margin:
             EdgeInsets.only(bottom: _formPadding / 4, top: _formPadding / 4),

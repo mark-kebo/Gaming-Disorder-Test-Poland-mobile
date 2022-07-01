@@ -31,6 +31,7 @@ dependencies:
   shared_preferences: "0.5.12"
   cupertino_icons: ^1.0.1
   flutter_local_notifications: "4.0.1"
+  drag_and_drop_lists: ^0.2.1
 
 dev_dependencies:
   flutter_test:

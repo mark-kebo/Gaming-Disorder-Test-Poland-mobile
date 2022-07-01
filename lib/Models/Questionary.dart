@@ -63,6 +63,9 @@ class QuestionaryModel {
         case "matrix":
           field = MatrixFormField(form);
           break;
+        case "dragAndDrop":
+          field = DragAndDropFormField(form);
+          break;
       }
       questions.add(field);
     }
@@ -75,7 +78,8 @@ enum QuestionaryFieldAbstract {
   multipleChoise,
   singleChoise,
   slider,
-  matrix
+  matrix,
+  dragAndDrop
 }
 
 abstract class QuestionaryFieldType {
@@ -114,6 +118,52 @@ class LikertScaleFormField extends QuestionaryFieldType {
       keyQuestion = item['keyQuestion'];
       keyQuestionOption = item['keyQuestionOption'];
       questionController.text = item["question"];
+      minQuestionTime = item["minTime"];
+      instructions = item["instructions"];
+      if (item["image"] != "null" && item["image"].toString().isNotEmpty) {
+        image = Uint8List.fromList(item["image"].toString().codeUnits);
+      } else {
+        image = Uint8List(0);
+      }
+    }
+  }
+
+  Map itemsList() {
+    return {
+      "image": String.fromCharCodes(this.image),
+      "instructions": this.instructions,
+      "key": this.key,
+      "question": this.questionController.text,
+      "name": this.name,
+      "options": this.optionsControllers.map((e) => e.text),
+      "keyQuestion": this.keyQuestion,
+      "keyQuestionOption": this.keyQuestionOption,
+      "minTime": this.minQuestionTime
+    };
+  }
+}
+
+class DragAndDropFormField extends QuestionaryFieldType {
+  QuestionaryFieldAbstract type = QuestionaryFieldAbstract.dragAndDrop;
+  String key = "dragAndDrop";
+  TextEditingController questionController = TextEditingController();
+  String name = "Ranking";
+  List<TextEditingController> optionsControllers = <TextEditingController>[];
+  Icon icon = Icon(
+    Icons.drag_handle_rounded,
+    color: Colors.deepPurple,
+  );
+
+  DragAndDropFormField(dynamic item) {
+    if (item != null) {
+      for (var option in item['options']) {
+        var textController = TextEditingController();
+        textController.text = option;
+        optionsControllers.add(textController);
+      }
+      questionController.text = item["question"];
+      keyQuestion = item['keyQuestion'];
+      keyQuestionOption = item['keyQuestionOption'];
       minQuestionTime = item["minTime"];
       instructions = item["instructions"];
       if (item["image"] != "null" && item["image"].toString().isNotEmpty) {
