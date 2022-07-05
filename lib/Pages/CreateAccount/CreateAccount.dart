@@ -9,8 +9,6 @@ import 'package:gdt/Helpers/Strings.dart';
 import 'package:gdt/Pages/Dashboard/Dashboard.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 
-FirebaseFirestore firestore = FirebaseFirestore.instance;
-
 class CreateAccount extends StatelessWidget {
   @override
   Widget build(BuildContext context) {

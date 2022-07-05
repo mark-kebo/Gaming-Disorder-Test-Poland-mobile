@@ -6,18 +6,15 @@ import 'dart:typed_data';
 import 'package:drag_and_drop_lists/drag_and_drop_lists.dart';
 import 'package:flutter/material.dart';
 import 'package:gdt/Helpers/Constants.dart';
+import 'package:gdt/Helpers/RequestServise.dart';
 import 'package:gdt/Helpers/Strings.dart';
 import 'package:gdt/Models/HelpData.dart';
 import 'package:gdt/Models/Questionary.dart';
 import 'package:gdt/Models/CompletedForm.dart';
-import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:gdt/Helpers/Alert.dart';
-import 'package:firebase_auth/firebase_auth.dart';
 import 'package:gdt/Pages/Dashboard/Dashboard.dart';
 
 import 'FullScreenImagePage.dart';
-
-FirebaseFirestore firestore = FirebaseFirestore.instance;
 
 // ignore: must_be_immutable
 class FormCompletion extends StatefulWidget {
@@ -35,9 +32,6 @@ class FormCompletion extends StatefulWidget {
 class _FormCompletionState extends State<FormCompletion> {
   double _formPadding = 16.0;
   Radius _containerCornerRadius = const Radius.circular(16.0);
-  CollectionReference _usersCollection =
-      firestore.collection(ProjectConstants.usersCollectionName);
-  final FirebaseAuth _firebaseAuth = FirebaseAuth.instance;
   final GlobalKey<FormState> _formKey = GlobalKey<FormState>();
   CompletedFormModel _completedFormModel;
   QuestionaryModel _questionaryModel;
@@ -54,6 +48,7 @@ class _FormCompletionState extends State<FormCompletion> {
 
   QuestionaryFieldType _lastAddedQuestion;
   List<DragAndDropList> _dragAndDropListContents;
+  RequestServiseAbstract _requestServise = RequestServise();
 
   int _currentQuestionId = 0;
   int _currentCompletedQuestionId = 0;
@@ -408,6 +403,7 @@ class _FormCompletionState extends State<FormCompletion> {
           children: dragAndDropOptions,
         );
       });
+      _changeDragAndDropOption(questionary);
     }
   }
 
@@ -434,6 +430,10 @@ class _FormCompletionState extends State<FormCompletion> {
           .children
           .insert(newItemIndex, movedItem);
     });
+    _changeDragAndDropOption(questionary);
+  }
+
+  void _changeDragAndDropOption(QuestionaryFieldType questionary) {
     var completedModel =
         _completedFormModel.questions[_currentCompletedQuestionId];
     String selectedOption = "";
@@ -680,41 +680,17 @@ class _FormCompletionState extends State<FormCompletion> {
       setState(() {
         _isShowLoading = true;
       });
-      String currentUserId;
-      _usersCollection
-          .get()
-          .then((QuerySnapshot querySnapshot) => {
-                querySnapshot.docs.forEach((doc) {
-                  var id = doc["id"];
-                  if (id == _firebaseAuth.currentUser.uid) {
-                    currentUserId = doc.id;
-                  }
+      _requestServise.completeForm(
+          _completedFormModel.itemsList(),
+          (value, errorType) => {
+                setState(() {
+                  _isShowLoading = false;
+                  Navigator.pushAndRemoveUntil(
+                    context,
+                    MaterialPageRoute(builder: (context) => Dashboard()),
+                    (Route<dynamic> route) => false,
+                  );
                 })
-              })
-          .whenComplete(() => {
-                _usersCollection
-                    .doc(currentUserId)
-                    .update({
-                      ProjectConstants.completedFormsCollectionName:
-                          FieldValue.arrayUnion(
-                              [_completedFormModel.itemsList()])
-                    })
-                    .then((value) => setState(() {
-                          _isShowLoading = false;
-                          Navigator.pushAndRemoveUntil(
-                            context,
-                            MaterialPageRoute(
-                                builder: (context) => Dashboard()),
-                            (Route<dynamic> route) => false,
-                          );
-                        }))
-                    .catchError((error) => {
-                          alertController.showMessageDialog(
-                              context, ProjectStrings.error, error.message),
-                          setState(() {
-                            _isShowLoading = false;
-                          })
-                        })
               });
     }
   }
