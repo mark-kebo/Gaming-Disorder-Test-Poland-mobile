@@ -8,6 +8,7 @@ import 'package:gdt/Helpers/Strings.dart';
 import 'package:gdt/Models/Questionary.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:firebase_auth/firebase_auth.dart';
+import 'package:gdt/Models/ResearchProgram.dart';
 import 'package:gdt/Pages/Dashboard/FormCompletion/FormCompletion.dart';
 import 'package:gdt/Models/CompletedForm.dart';
 
@@ -23,9 +24,14 @@ class _MyFormsState extends State<MyForms> {
   List<QuestionaryModel> _forms = <QuestionaryModel>[];
   List<CompletedFormModel> _completedForms = <CompletedFormModel>[];
   final FirebaseAuth firebaseAuth = FirebaseAuth.instance;
-  CollectionReference _formsCollection = firestore.collection(ProjectConstants.formsCollectionName);
-  CollectionReference _usersCollection = firestore.collection(ProjectConstants.usersCollectionName);
-  CollectionReference _groupsCollection = firestore.collection(ProjectConstants.groupsCollectionName);
+  CollectionReference _formsCollection =
+      firestore.collection(ProjectConstants.formsCollectionName);
+  CollectionReference _usersCollection =
+      firestore.collection(ProjectConstants.usersCollectionName);
+  CollectionReference _groupsCollection =
+      firestore.collection(ProjectConstants.groupsCollectionName);
+  CollectionReference _researchProgrammesCollection =
+      firestore.collection(ProjectConstants.researchProgrammesCollectionName);
   Radius _listElementCornerRadius = const Radius.circular(16.0);
   bool _isShowLoading = false;
 
@@ -66,8 +72,11 @@ class _MyFormsState extends State<MyForms> {
                               await _groupsCollection
                                   .doc(form["groupId"])
                                   .get()
-                                  .then((doc) => {
-                                        if (_isUserHasGruop(doc))
+                                  .then((doc) async => {
+                                        if ((await _isFormAvailable(
+                                                QuestionaryModel(
+                                                    form.id, form)) &&
+                                            _isUserHasGruop(doc)))
                                           {
                                             _forms.add(
                                                 QuestionaryModel(form.id, form))
@@ -102,6 +111,45 @@ class _MyFormsState extends State<MyForms> {
       });
     }
     return isGroupHasUser;
+  }
+
+  Future<bool> _isFormAvailable(QuestionaryModel questionaryModel) async {
+    List<ResearchProgramForm> researchProgramForms = [];
+    DateTime toDate;
+    DateTime fromDate;
+    Future<bool> isAvailable = Future.value(true);
+    DateTime now = DateTime.now();
+    await _researchProgrammesCollection.get().then((programmes) => {
+          researchProgramForms = programmes.docs
+              .map((e) => ResearchProgramModel(e))
+              .map((e) => e.forms)
+              .toList()
+              .expand((i) => i)
+              .toList(),
+          if (researchProgramForms
+              .map((e) => e.formId)
+              .contains(questionaryModel.id))
+            {
+              fromDate = (researchProgramForms
+                      .where((element) => element.formId == questionaryModel.id)
+                      .map((e) => e.dateTimeFrom)
+                      .toList() as List<DateTime>)
+                  .reduce((a, b) => b.isAfter(a) ? a : b),
+              toDate = (researchProgramForms
+                      .where((element) => element.formId == questionaryModel.id)
+                      .map((e) => e.dateTimeTo)
+                      .toList() as List<DateTime>)
+                  .reduce((a, b) => a.isAfter(b) ? a : b),
+              isAvailable =
+                  Future.value(fromDate.isBefore(now) && toDate.isAfter(now)),
+              print(questionaryModel.name),
+              print("--from---> $fromDate"),
+              print("---to--> $toDate"),
+              print("-"),
+            }
+        });
+    print("return $isAvailable");
+    return isAvailable;
   }
 
   @override
