@@ -2,8 +2,10 @@
 
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:flutter/material.dart';
+import 'package:flutter/scheduler.dart';
 import 'package:gdt/Helpers/Alert.dart';
 import 'package:gdt/Helpers/Constants.dart';
+import 'package:gdt/Helpers/PushNotificationManager.dart';
 import 'package:gdt/Helpers/Strings.dart';
 import 'package:gdt/Models/HelpData.dart';
 import 'package:gdt/Pages/Dashboard/Tabs/MyForms.dart';
@@ -42,9 +44,14 @@ class _DashboardState extends State<Dashboard> {
 
   void initState() {
     super.initState();
-    SystemChrome.setPreferredOrientations([
-      DeviceOrientation.portraitUp
-    ]);
+    SystemChrome.setPreferredOrientations([DeviceOrientation.portraitUp]);
+    SchedulerBinding.instance.addPostFrameCallback((_) async => {
+          if (!(await PushNotificationsManager.instance.isAvailable()))
+            {
+              alertController.showMessageDialog(context,
+                  ProjectStrings.alertTitle, ProjectStrings.pushAlertMessage)
+            }
+        });
   }
 
   void _prepareViewData() {

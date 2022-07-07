@@ -79,4 +79,7 @@ class ProjectStrings {
   static const numericValues = "Liczby (np 0-9)";
   static const charValues = "Litery i znaki interpunkcyjne (np A-Z , .)";
   static const otherOption = "“Inne”";
+  static const alertTitle = "Uwaga";
+  static const pushAlertMessage =
+      "Pamiętaj o włączeniu powiadomień PUSH w ustawieniach telefonu. Jest to niezbędny warunek brania udziału w badaniach.";
 }

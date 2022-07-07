@@ -1,14 +1,15 @@
 // @dart=2.9
 
+import 'package:awesome_notifications/awesome_notifications.dart';
 import 'package:firebase_messaging/firebase_messaging.dart';
 
 class PushNotificationsManager {
 
   PushNotificationsManager._();
 
-  factory PushNotificationsManager() => _instance;
+  factory PushNotificationsManager() => instance;
 
-  static final PushNotificationsManager _instance = PushNotificationsManager._();
+  static final PushNotificationsManager instance = PushNotificationsManager._();
 
   final FirebaseMessaging _firebaseMessaging = FirebaseMessaging();
   bool _initialized = false;
@@ -25,5 +26,9 @@ class PushNotificationsManager {
       
       _initialized = true;
     }
+  }
+  
+  Future<bool> isAvailable() async {
+    return await AwesomeNotifications().isNotificationAllowed();
   }
 }
