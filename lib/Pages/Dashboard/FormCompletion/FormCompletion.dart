@@ -80,6 +80,7 @@ class _FormCompletionState extends State<FormCompletion> {
           primarySwatch: Colors.deepPurple,
         ),
         home: Scaffold(
+            resizeToAvoidBottomInset: false,
             key: _scaffoldKey,
             body: Padding(
                 padding: EdgeInsets.all(_formPadding),
