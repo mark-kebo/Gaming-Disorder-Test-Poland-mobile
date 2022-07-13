@@ -195,7 +195,7 @@ class _SettingsState extends State<AppSettings> {
 
   void _showLogoutAlert() {
     alertController.showMessageDialogWithAction(
-        context, ProjectStrings.logout, ProjectStrings.logoutQuestion,
+        context, ProjectStrings.logout, ProjectStrings.logoutQuestion, true,
         () async {
       _logoutAction();
     });
@@ -205,7 +205,8 @@ class _SettingsState extends State<AppSettings> {
     alertController.showMessageDialogWithAction(
         context,
         ProjectStrings.deleteAccount,
-        ProjectStrings.deleteAccountQuestion, () async {
+        ProjectStrings.deleteAccountQuestion,
+        true, () async {
       _deleteAccountAction();
     });
   }

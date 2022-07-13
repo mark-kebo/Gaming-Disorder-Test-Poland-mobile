@@ -38,7 +38,10 @@ class _CompletedFormAnswersState extends State<CompletedFormAnswers> {
         home: Scaffold(
             key: _scaffoldKey,
             body: Padding(
-                padding: EdgeInsets.all(_formPadding), child: _questionsList()),
+                padding: EdgeInsets.all(_formPadding),
+                child: Column(
+                    mainAxisSize: MainAxisSize.min,
+                    children: [_messageTextField(), _questionsList()])),
             appBar: AppBar(
               backgroundColor: Colors.white,
               actions: [
@@ -52,7 +55,8 @@ class _CompletedFormAnswersState extends State<CompletedFormAnswers> {
                             HelpData.helpEmail +
                             '\n' +
                             ProjectStrings.helpTel +
-                            HelpData.helpPhone);                  },
+                            HelpData.helpPhone);
+                  },
                   child: Icon(Icons.help_outline_rounded),
                 ),
               ],
@@ -67,16 +71,29 @@ class _CompletedFormAnswersState extends State<CompletedFormAnswers> {
             )));
   }
 
+  Widget _messageTextField() {
+    bool isNeedMessage = _formModel.message.isNotEmpty &&
+        _formModel.message != "null" &&
+        _formModel.getPoints() < _formModel.minPoints;
+    return isNeedMessage
+        ? Text(_formModel.message, style: TextStyle(color: Colors.redAccent))
+        : SizedBox();
+  }
+
   Widget _questionsList() {
     var questions = _formModel.questions;
     print(questions.first.name);
-    return ListView.builder(
+    return Expanded(
+        child: ListView.builder(
             itemCount: questions.length,
             itemBuilder: (BuildContext context, int index) {
               return ListTile(
                   title: Text(
                       (index + 1).toString() + ". " + questions[index].name),
-                  subtitle: Text(questions[index].selectedOptions.map((e) => e.text).join(", ")));
-            });
+                  subtitle: Text(questions[index]
+                      .selectedOptions
+                      .map((e) => e.text)
+                      .join(", ")));
+            }));
   }
 }

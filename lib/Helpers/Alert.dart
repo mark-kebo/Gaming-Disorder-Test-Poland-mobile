@@ -26,7 +26,7 @@ class AlertController {
   }
 
   void showMessageDialogWithAction(BuildContext context, String titleText,
-      String bodyText, Function okAction) {
+      String bodyText, bool isNeedCancel, Function okAction) {
     Widget okButton = FlatButton(
       child: Text(ProjectStrings.ok),
       onPressed: () {
@@ -43,7 +43,7 @@ class AlertController {
     AlertDialog alert = AlertDialog(
       title: Text(titleText),
       content: Text(bodyText),
-      actions: [okButton, cancelButton],
+      actions: [okButton, isNeedCancel ? cancelButton : SizedBox()],
     );
     showDialog(
       context: context,

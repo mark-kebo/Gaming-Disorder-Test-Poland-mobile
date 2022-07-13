@@ -12,6 +12,8 @@ class QuestionaryModel {
   String description = "";
   String groupId = "";
   String groupName = "";
+  String message = "";
+  String minPointsToMessage = "";
   bool isHasCheckList = false;
 
   CheckListQuestionaryField checkList;
@@ -21,6 +23,8 @@ class QuestionaryModel {
     if (snapshot != null) {
       this.id = id;
       name = snapshot.data()["name"];
+      message = snapshot.data()["message"];
+      minPointsToMessage = snapshot.data()["minPointsToMessage"].toString();
       isHasCheckList = snapshot.data()["isHasCheckList"];
       description = snapshot.data()["description"];
       groupId = snapshot.data()["groupId"];
@@ -33,6 +37,8 @@ class QuestionaryModel {
   QuestionaryModel.copyFrom(QuestionaryModel questionary) {
     this.id = questionary.id;
     this.name = questionary.name;
+    this.message = questionary.message;
+    this.minPointsToMessage = questionary.minPointsToMessage;
     this.description = questionary.description;
     this.groupId = questionary.groupId;
     this.groupName = questionary.groupName;
@@ -88,7 +94,7 @@ abstract class QuestionaryFieldType {
   String name;
   String instructions;
   TextEditingController questionController;
-  List<TextEditingController> optionsControllers;
+  List<QuestionaryFieldOption> optionsControllers;
   Map itemsList();
   Icon icon;
   String keyQuestion = "";
@@ -97,12 +103,31 @@ abstract class QuestionaryFieldType {
   Uint8List image;
 }
 
+class QuestionaryFieldOption {
+  TextEditingController textController = TextEditingController();
+  String points = "";
+
+  QuestionaryFieldOption(String text, String points) {
+    this.textController.text = text;
+    this.points = points;
+  }
+
+  QuestionaryFieldOption.from(dynamic item) {
+    this.textController.text = item['text'];
+    this.points = item['points'];
+  }
+
+  Map itemsList() {
+    return {"text": this.textController.text, "points": this.points};
+  }
+}
+
 class LikertScaleFormField extends QuestionaryFieldType {
   QuestionaryFieldAbstract type = QuestionaryFieldAbstract.likertScale;
   String key = "likertScale";
   TextEditingController questionController = TextEditingController();
   String name = "Likert Scale";
-  List<TextEditingController> optionsControllers = <TextEditingController>[];
+  List<QuestionaryFieldOption> optionsControllers = <QuestionaryFieldOption>[];
   Icon icon = Icon(
     Icons.linear_scale,
     color: Colors.deepPurple,
@@ -110,10 +135,10 @@ class LikertScaleFormField extends QuestionaryFieldType {
 
   LikertScaleFormField(dynamic item) {
     if (item != null) {
-      for (var option in item['options']) {
-        var textController = TextEditingController();
-        textController.text = option;
-        optionsControllers.add(textController);
+      if (item['options'] != null && item['options'] != "null") {
+        for (dynamic option in item['options']) {
+          optionsControllers.add(QuestionaryFieldOption.from(option));
+        }
       }
       keyQuestion = item['keyQuestion'];
       keyQuestionOption = item['keyQuestionOption'];
@@ -135,7 +160,7 @@ class LikertScaleFormField extends QuestionaryFieldType {
       "key": this.key,
       "question": this.questionController.text,
       "name": this.name,
-      "options": this.optionsControllers.map((e) => e.text),
+      "options": this.optionsControllers.map((e) => e.itemsList()),
       "keyQuestion": this.keyQuestion,
       "keyQuestionOption": this.keyQuestionOption,
       "minTime": this.minQuestionTime
@@ -148,7 +173,7 @@ class DragAndDropFormField extends QuestionaryFieldType {
   String key = "dragAndDrop";
   TextEditingController questionController = TextEditingController();
   String name = "Ranking";
-  List<TextEditingController> optionsControllers = <TextEditingController>[];
+  List<QuestionaryFieldOption> optionsControllers = <QuestionaryFieldOption>[];
   Icon icon = Icon(
     Icons.drag_handle_rounded,
     color: Colors.deepPurple,
@@ -156,10 +181,10 @@ class DragAndDropFormField extends QuestionaryFieldType {
 
   DragAndDropFormField(dynamic item) {
     if (item != null) {
-      for (var option in item['options']) {
-        var textController = TextEditingController();
-        textController.text = option;
-        optionsControllers.add(textController);
+      if (item['options'] != null && item['options'] != "null") {
+        for (dynamic option in item['options']) {
+          optionsControllers.add(QuestionaryFieldOption.from(option));
+        }
       }
       questionController.text = item["question"];
       keyQuestion = item['keyQuestion'];
@@ -181,7 +206,7 @@ class DragAndDropFormField extends QuestionaryFieldType {
       "key": this.key,
       "question": this.questionController.text,
       "name": this.name,
-      "options": this.optionsControllers.map((e) => e.text),
+      "options": this.optionsControllers.map((e) => e.itemsList()),
       "keyQuestion": this.keyQuestion,
       "keyQuestionOption": this.keyQuestionOption,
       "minTime": this.minQuestionTime
@@ -194,7 +219,7 @@ class MatrixFormField extends QuestionaryFieldType {
   String key = "matrix";
   String name = "Matrix";
   List<TextEditingController> questionsControllers = <TextEditingController>[];
-  List<TextEditingController> optionsControllers = <TextEditingController>[];
+  List<QuestionaryFieldOption> optionsControllers = <QuestionaryFieldOption>[];
   Icon icon = Icon(
     Icons.table_rows_sharp,
     color: Colors.deepPurple,
@@ -203,10 +228,10 @@ class MatrixFormField extends QuestionaryFieldType {
   MatrixFormField(dynamic item) {
     if (item != null) {
       questionController = TextEditingController(text: "");
-      for (var option in item['options']) {
-        var textController = TextEditingController();
-        textController.text = option;
-        optionsControllers.add(textController);
+      if (item['options'] != null && item['options'] != "null") {
+        for (dynamic option in item['options']) {
+          optionsControllers.add(QuestionaryFieldOption.from(option));
+        }
       }
       keyQuestion = item['keyQuestion'];
       keyQuestionOption = item['keyQuestionOption'];
@@ -232,7 +257,7 @@ class MatrixFormField extends QuestionaryFieldType {
       "key": this.key,
       "questions": this.questionsControllers.map((e) => e.text),
       "name": this.name,
-      "options": this.optionsControllers.map((e) => e.text),
+      "options": this.optionsControllers.map((e) => e.itemsList()),
       "keyQuestion": this.keyQuestion,
       "keyQuestionOption": this.keyQuestionOption,
       "minTime": this.minQuestionTime
@@ -251,7 +276,7 @@ class ParagraphFormField extends QuestionaryFieldType {
     Icons.format_align_left_outlined,
     color: Colors.deepPurple,
   );
-  List<TextEditingController> optionsControllers = <TextEditingController>[];
+  List<QuestionaryFieldOption> optionsControllers = <QuestionaryFieldOption>[];
   String regEx;
   String validationType;
   String validationSymbols;
@@ -259,7 +284,7 @@ class ParagraphFormField extends QuestionaryFieldType {
   ParagraphFormField(dynamic item) {
     if (item != null) {
       optionsControllers = [];
-      optionsControllers.add(TextEditingController());
+      optionsControllers.add(QuestionaryFieldOption("", ""));
       questionController.text = item["question"];
       keyQuestion = item['keyQuestion'];
       keyQuestionOption = item['keyQuestionOption'];
@@ -318,7 +343,7 @@ class MultipleChoiseFormField extends QuestionaryFieldType {
   String key = "multipleChoise";
   TextEditingController questionController = TextEditingController();
   String name = "Multiple Choise";
-  List<TextEditingController> optionsControllers = <TextEditingController>[];
+  List<QuestionaryFieldOption> optionsControllers = <QuestionaryFieldOption>[];
   Icon icon = Icon(
     Icons.check_box_outlined,
     color: Colors.deepPurple,
@@ -329,13 +354,13 @@ class MultipleChoiseFormField extends QuestionaryFieldType {
   MultipleChoiseFormField(dynamic item) {
     if (item != null) {
       isHasOtherOption = item["isHasOtherOption"];
-      for (var option in item['options']) {
-        var textController = TextEditingController();
-        textController.text = option;
-        optionsControllers.add(textController);
+      if (item['options'] != null && item['options'] != "null") {
+        for (dynamic option in item['options']) {
+          optionsControllers.add(QuestionaryFieldOption.from(option));
+        }
       }
       if (isHasOtherOption) {
-        optionsControllers.add(TextEditingController());
+        optionsControllers.add(QuestionaryFieldOption("", ""));
       }
       questionController.text = item["question"];
       keyQuestion = item['keyQuestion'];
@@ -358,7 +383,7 @@ class MultipleChoiseFormField extends QuestionaryFieldType {
       "key": this.key,
       "question": this.questionController.text,
       "name": this.name,
-      "options": this.optionsControllers.map((e) => e.text),
+      "options": this.optionsControllers.map((e) => e.itemsList()),
       "keyQuestion": this.keyQuestion,
       "keyQuestionOption": this.keyQuestionOption,
       "minTime": this.minQuestionTime
@@ -371,7 +396,7 @@ class SingleChoiseFormField extends QuestionaryFieldType {
   String key = "singleChoise";
   TextEditingController questionController = TextEditingController();
   String name = "Single Choise";
-  List<TextEditingController> optionsControllers = <TextEditingController>[];
+  List<QuestionaryFieldOption> optionsControllers = <QuestionaryFieldOption>[];
   Icon icon = Icon(
     Icons.radio_button_checked_outlined,
     color: Colors.deepPurple,
@@ -380,10 +405,10 @@ class SingleChoiseFormField extends QuestionaryFieldType {
 
   SingleChoiseFormField(dynamic item) {
     if (item != null) {
-      for (var option in item['options']) {
-        var textController = TextEditingController();
-        textController.text = option;
-        optionsControllers.add(textController);
+      if (item['options'] != null && item['options'] != "null") {
+        for (dynamic option in item['options']) {
+          optionsControllers.add(QuestionaryFieldOption.from(option));
+        }
       }
       questionController.text = item["question"];
       keyQuestion = item['keyQuestion'];
@@ -407,7 +432,7 @@ class SingleChoiseFormField extends QuestionaryFieldType {
       "question": this.questionController.text,
       "name": this.name,
       "isKeyQuestion": this.isKeyQuestion,
-      "options": this.optionsControllers.map((e) => e.text),
+      "options": this.optionsControllers.map((e) => e.itemsList()),
       "keyQuestion": this.keyQuestion,
       "keyQuestionOption": this.keyQuestionOption,
       "minTime": this.minQuestionTime
@@ -428,11 +453,11 @@ class SliderFormField extends QuestionaryFieldType {
     Icons.toggle_on_outlined,
     color: Colors.deepPurple,
   );
-  List<TextEditingController> optionsControllers = <TextEditingController>[];
+  List<QuestionaryFieldOption> optionsControllers = <QuestionaryFieldOption>[];
 
   SliderFormField(dynamic item) {
     if (item != null) {
-      optionsControllers.add(TextEditingController());
+      optionsControllers.add(QuestionaryFieldOption("", ""));
       maxValueController.text = item["maxValue"];
       minValueController.text = item["minValue"];
       questionController.text = item["question"];
