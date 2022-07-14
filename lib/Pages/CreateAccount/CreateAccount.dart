@@ -6,8 +6,10 @@ import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:gdt/Helpers/Alert.dart';
 import 'package:gdt/Helpers/Constants.dart';
 import 'package:gdt/Helpers/Strings.dart';
+import 'package:gdt/Pages/CreateAccount/SelectUserGroup.dart';
 import 'package:gdt/Pages/Dashboard/Dashboard.dart';
 import 'package:shared_preferences/shared_preferences.dart';
+import 'dart:math';
 
 class CreateAccount extends StatelessWidget {
   @override
@@ -51,12 +53,16 @@ class _CreateAccountFormState extends State<CreateAccountForm> {
 
   CollectionReference _users =
       firestore.collection(ProjectConstants.usersCollectionName);
+  CollectionReference _userGroups =
+      firestore.collection(ProjectConstants.groupsCollectionName);
 
   final AlertController alertController = AlertController();
 
   double _formPadding = 24.0;
   double _fieldPadding = 8.0;
   bool _isShowLoading = false;
+
+  String groupName = "";
 
   @override
   Widget build(BuildContext context) {
@@ -121,33 +127,57 @@ class _CreateAccountFormState extends State<CreateAccountForm> {
                   obscureText: true),
             ),
             Padding(
-              padding: EdgeInsets.only(top: _formPadding * 2),
-              child: _isShowLoading
-                  ? CircularProgressIndicator()
-                  : SizedBox(
-                      width: double.infinity,
-                      child: FlatButton(
-                        color: Colors.deepPurple,
-                        shape: RoundedRectangleBorder(
-                          borderRadius: BorderRadius.circular(32.0),
-                        ),
-                        onPressed: () async {
-                          if (_formKey.currentState.validate()) {
-                            _createAccountAction();
-                          }
-                        },
-                        child: Padding(
-                          padding: EdgeInsets.only(
-                              left: _formPadding * 2,
-                              right: _formPadding * 2,
-                              top: _fieldPadding * 2,
-                              bottom: _fieldPadding * 2),
-                          child: Text(ProjectStrings.create,
-                              style:
-                                  TextStyle(fontSize: 18, color: Colors.white)),
-                        ),
-                      )),
-            ),
+                padding: EdgeInsets.all(_fieldPadding),
+                child: TextButton(
+                  onPressed: () async {
+                    Navigator.push(
+                        context,
+                        MaterialPageRoute(
+                            builder: (BuildContext ctx) => SelectUserGroup(() {
+                                  setState(() {
+                                    this.groupName = "";
+                                  });
+                                }, (String groupName) {
+                                  setState(() {
+                                    this.groupName = groupName;
+                                  });
+                                })));
+                  },
+                  child: Text(
+                      ProjectStrings.selectedGroup +
+                          (groupName.isEmpty
+                              ? ProjectStrings.randomGroup
+                              : groupName),
+                      style: TextStyle(
+                          fontSize: 16,
+                          fontWeight: FontWeight.bold,
+                          color: Colors.deepPurple)),
+                )),
+            _isShowLoading
+                ? CircularProgressIndicator()
+                : SizedBox(
+                    width: double.infinity,
+                    child: FlatButton(
+                      color: Colors.deepPurple,
+                      shape: RoundedRectangleBorder(
+                        borderRadius: BorderRadius.circular(32.0),
+                      ),
+                      onPressed: () async {
+                        if (_formKey.currentState.validate()) {
+                          _createAccountAction();
+                        }
+                      },
+                      child: Padding(
+                        padding: EdgeInsets.only(
+                            left: _formPadding * 2,
+                            right: _formPadding * 2,
+                            top: _fieldPadding * 2,
+                            bottom: _fieldPadding * 2),
+                        child: Text(ProjectStrings.create,
+                            style:
+                                TextStyle(fontSize: 18, color: Colors.white)),
+                      ),
+                    )),
           ],
         ),
       ),
@@ -185,6 +215,7 @@ class _CreateAccountFormState extends State<CreateAccountForm> {
         "id": _auth.currentUser.uid
       }).catchError((error) => alertController.showMessageDialog(
           context, ProjectStrings.error, error.message));
+      _updateUserGroups(_auth.currentUser.uid);
       Navigator.pushReplacement(context,
           MaterialPageRoute(builder: (BuildContext ctx) => Dashboard()));
       setState(() {
@@ -197,5 +228,33 @@ class _CreateAccountFormState extends State<CreateAccountForm> {
         _isShowLoading = false;
       });
     }
+  }
+
+  void _updateUserGroups(String userId) async {
+    setState(() {
+      _isShowLoading = true;
+    });
+    String groupId = "";
+    String randomGroupId = "";
+    String firstGroupId = "";
+    _userGroups
+        .get()
+        .then((value) => value.docs.forEach((element) => {
+              print(element),
+              if (element["name"] == groupName) {groupId = element.id},
+              if (firstGroupId.isEmpty) {firstGroupId = element.id},
+              if (Random().nextBool()) {randomGroupId = element.id}
+            }))
+        .whenComplete(() => {
+              groupId.isEmpty
+                  ? _userGroups
+                      .doc(randomGroupId.isEmpty ? firstGroupId : randomGroupId)
+                      .update({
+                      'selectedUsers': FieldValue.arrayUnion([userId])
+                    })
+                  : _userGroups.doc(groupId).update({
+                      'selectedUsers': FieldValue.arrayUnion([userId])
+                    })
+            });
   }
 }

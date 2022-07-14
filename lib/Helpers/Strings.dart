@@ -63,7 +63,7 @@ class ProjectStrings {
   static const formName = "Wpisz nazwę ankiety";
   static const descriptionRequired = "Wymagany jest opis";
   static const formDescription = "Wpisz opis ankiety";
-  static const selectedGroup = "Wybrana grupa:   ";
+  static const selectedGroup = "Wybrana grupa: ";
   static const selectKeyQuestion = "Wybierz kluczowe pytanie:   ";
   static const selectKeyAnswer = "Wybierz kluczową odpowiedź:   ";
   static const selectFieldType = "Proszę wybrać rodzaj pola";
@@ -82,4 +82,5 @@ class ProjectStrings {
   static const alertTitle = "Uwaga";
   static const pushAlertMessage =
       "Pamiętaj o włączeniu powiadomień PUSH w ustawieniach telefonu. Jest to niezbędny warunek brania udziału w badaniach.";
+  static const randomGroup = "Losowa";
 }
