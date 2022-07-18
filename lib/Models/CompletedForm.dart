@@ -12,6 +12,7 @@ class CompletedFormModel {
   int minPoints = 0;
   CompletedCheckList checkList;
   List<CompletedFormQuestion> questions = <CompletedFormQuestion>[];
+  DateTime startDate;
 
   CompletedFormModel(dynamic object) {
     id = object["id"];
@@ -25,6 +26,7 @@ class CompletedFormModel {
   }
 
   CompletedFormModel.fromQuestionaryModel(QuestionaryModel questionary) {
+    startDate = DateTime.now();
     this.id = questionary.id;
     this.name = questionary.name;
     this.message = questionary.message;
@@ -70,6 +72,7 @@ class CompletedFormModel {
     LocationData locationData = await location.getLocation();
     bool isOpenFromPush =
         prefs.getBool(ProjectConstants.prefsIsOpenFromPush ?? false);
+    Duration startToAnswerTime = startDate.difference(dateLogToApp);
     return this.checkList.dateTime == null
         ? {
             "id": this.id,
@@ -81,6 +84,7 @@ class CompletedFormModel {
             "isOpenFromPush": isOpenFromPush,
             "locationData":
                 "Latitude: ${locationData.latitude}, Longitude: ${locationData.longitude},",
+            "startToAnswerTime": _printDuration(startToAnswerTime),
             "questions": this.questions.map((e) => e.itemsList()).toList()
           }
         : {
@@ -94,6 +98,7 @@ class CompletedFormModel {
             "isOpenFromPush": isOpenFromPush,
             "locationData":
                 "Latitude: ${locationData.latitude}, Longitude: ${locationData.longitude},",
+            "startToAnswerTime": _printDuration(startToAnswerTime),
             "questions": this.questions.map((e) => e.itemsList()).toList()
           };
   }
