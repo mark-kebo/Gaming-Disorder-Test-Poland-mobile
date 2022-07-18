@@ -742,9 +742,9 @@ class _FormCompletionState extends State<FormCompletion> {
     }
   }
 
-  void _sendCompliteFormRequest() {
+  Future<void> _sendCompliteFormRequest() async {
     _requestServise.completeForm(
-        _completedFormModel.itemsList(),
+        await _completedFormModel.itemsList(),
         (value, errorType) => {
               setState(() {
                 _isShowLoading = false;

@@ -343,6 +343,8 @@ PODS:
   - integration_test (0.0.1):
     - Flutter
   - leveldb-library (1.22.1)
+  - location (0.0.1):
+    - Flutter
   - nanopb (1.30906.0):
     - nanopb/decode (= 1.30906.0)
     - nanopb/encode (= 1.30906.0)
@@ -362,6 +364,7 @@ DEPENDENCIES:
   - Flutter (from `Flutter`)
   - flutter_local_notifications (from `.symlinks/plugins/flutter_local_notifications/ios`)
   - integration_test (from `.symlinks/plugins/integration_test/ios`)
+  - location (from `.symlinks/plugins/location/ios`)
   - shared_preferences (from `.symlinks/plugins/shared_preferences/ios`)
 
 SPEC REPOS:
@@ -403,6 +406,8 @@ EXTERNAL SOURCES:
     :path: ".symlinks/plugins/flutter_local_notifications/ios"
   integration_test:
     :path: ".symlinks/plugins/integration_test/ios"
+  location:
+    :path: ".symlinks/plugins/location/ios"
   shared_preferences:
     :path: ".symlinks/plugins/shared_preferences/ios"
 
@@ -431,6 +436,7 @@ SPEC CHECKSUMS:
   GTMSessionFetcher: 5595ec75acf5be50814f81e9189490412bad82ba
   integration_test: a1e7d09bd98eca2fc37aefd79d4f41ad37bdbbe5
   leveldb-library: 50c7b45cbd7bf543c81a468fe557a16ae3db8729
+  location: 3a2eed4dd2fab25e7b7baf2a9efefe82b512d740
   nanopb: 59317e09cf1f1a0af72f12af412d54edf52603fc
   PromisesObjC: 3113f7f76903778cf4a0586bd1ab89329a0b7b97
   Protobuf: 818c6a87e44193a77f56b87c6a1c106efda7e062

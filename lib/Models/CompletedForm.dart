@@ -1,6 +1,9 @@
 // @dart=2.9
 
+import 'package:gdt/Helpers/Constants.dart';
 import 'package:gdt/Models/Questionary.dart';
+import 'package:location/location.dart';
+import 'package:shared_preferences/shared_preferences.dart';
 
 class CompletedFormModel {
   String id = "";
@@ -58,7 +61,15 @@ class CompletedFormModel {
     return count;
   }
 
-  Map itemsList() {
+  Future<Map> itemsList() async {
+    Location location = new Location();
+    SharedPreferences prefs = await SharedPreferences.getInstance();
+    DateTime dateLogToApp = DateTime.fromMillisecondsSinceEpoch(
+        prefs.getInt(ProjectConstants.prefsDateLogToApp) ?? 0);
+    Duration timeLogToApp = DateTime.now().difference(dateLogToApp);
+    LocationData locationData = await location.getLocation();
+    bool isOpenFromPush =
+        prefs.getBool(ProjectConstants.prefsIsOpenFromPush ?? false);
     return this.checkList.dateTime == null
         ? {
             "id": this.id,
@@ -66,6 +77,10 @@ class CompletedFormModel {
             "message": this.message,
             "minPoints": this.minPoints,
             "isSuspicious": isSuspicious(),
+            "dateLogToApp": _printDuration(timeLogToApp),
+            "isOpenFromPush": isOpenFromPush,
+            "locationData":
+                "Latitude: ${locationData.latitude}, Longitude: ${locationData.longitude},",
             "questions": this.questions.map((e) => e.itemsList()).toList()
           }
         : {
@@ -75,8 +90,19 @@ class CompletedFormModel {
             "minPoints": this.minPoints,
             "isSuspicious": isSuspicious(),
             "checkList": this.checkList.itemsList(),
+            "dateLogToApp": _printDuration(timeLogToApp),
+            "isOpenFromPush": isOpenFromPush,
+            "locationData":
+                "Latitude: ${locationData.latitude}, Longitude: ${locationData.longitude},",
             "questions": this.questions.map((e) => e.itemsList()).toList()
           };
+  }
+
+  String _printDuration(Duration duration) {
+    String twoDigits(int n) => n.toString().padLeft(2, "0");
+    String twoDigitMinutes = twoDigits(duration.inMinutes.remainder(60));
+    String twoDigitSeconds = twoDigits(duration.inSeconds.remainder(60));
+    return "${twoDigits(duration.inHours)}:$twoDigitMinutes:$twoDigitSeconds";
   }
 }
 

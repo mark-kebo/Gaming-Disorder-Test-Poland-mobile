@@ -12,6 +12,8 @@ import 'package:gdt/Pages/Dashboard/Tabs/MyForms.dart';
 import 'package:gdt/Pages/Dashboard/Tabs/Settings.dart';
 import 'package:gdt/Pages/Dashboard/Tabs/CompletedForms.dart';
 import 'package:flutter/services.dart';
+import 'package:location/location.dart';
+import 'package:shared_preferences/shared_preferences.dart';
 
 FirebaseFirestore firestore = FirebaseFirestore.instance;
 
@@ -33,10 +35,13 @@ class Dashboard extends StatefulWidget {
 class _DashboardState extends State<Dashboard> {
   CollectionReference _settingsCollection =
       firestore.collection(ProjectConstants.settingsCollectionName);
-
+  Location location = new Location();
   int _currentIndex = 0;
   List<_DashboardTabItem> _children = [];
   final AlertController alertController = AlertController();
+  bool _serviceEnabled;
+  PermissionStatus _permissionGranted;
+  SharedPreferences _prefs;
 
   _DashboardState() {
     _prepareViewData();
@@ -50,7 +55,23 @@ class _DashboardState extends State<Dashboard> {
             {
               alertController.showMessageDialog(context,
                   ProjectStrings.alertTitle, ProjectStrings.pushAlertMessage)
+            },
+          _serviceEnabled = await location.serviceEnabled(),
+          if (!_serviceEnabled)
+            {
+              _serviceEnabled = await location.requestService(),
             }
+          else
+            {
+              _permissionGranted = await location.hasPermission(),
+              if (_permissionGranted == PermissionStatus.denied)
+                {
+                  _permissionGranted = await location.requestPermission(),
+                }
+            },
+          _prefs = await SharedPreferences.getInstance(),
+          _prefs.setInt(ProjectConstants.prefsDateLogToApp,
+              DateTime.now().millisecondsSinceEpoch),
         });
   }
 

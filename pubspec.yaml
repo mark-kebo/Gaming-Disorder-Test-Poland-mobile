@@ -33,7 +33,8 @@ dependencies:
   flutter_local_notifications: "4.0.1"
   drag_and_drop_lists: ^0.2.1
   awesome_notifications: ^0.0.5
-  
+  location: ^3.2.4
+
 dev_dependencies:
   flutter_test:
     sdk: flutter
