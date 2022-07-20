@@ -1,5 +1,6 @@
 // @dart=2.9
 
+import 'package:flutter/material.dart';
 import 'package:gdt/Helpers/Constants.dart';
 import 'package:gdt/Models/Questionary.dart';
 import 'package:location/location.dart';
@@ -177,6 +178,7 @@ class CompletedFormQuestion {
 
   Map itemsList() {
     return {
+      "uuid": UniqueKey().toString(),
       "points": getSelectedPoints(),
       "name": this.name,
       "isSoFast": this.isSoFast,
