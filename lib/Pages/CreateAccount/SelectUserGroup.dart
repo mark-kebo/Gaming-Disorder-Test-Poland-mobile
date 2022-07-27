@@ -44,19 +44,6 @@ class SelectUserGrouptScreen extends StatelessWidget {
             Navigator.pop(context);
           },
         ),
-        actions: [
-          TextButton(
-            onPressed: () async {
-              random();
-              Navigator.pop(context);
-            },
-            child: Text(ProjectStrings.randomGroup,
-                style: TextStyle(
-                    fontSize: 12,
-                    fontWeight: FontWeight.bold,
-                    color: Colors.deepPurple)),
-          )
-        ],
         title: Text(ProjectStrings.group,
             style: TextStyle(fontSize: 20, color: Colors.deepPurple)),
       ),

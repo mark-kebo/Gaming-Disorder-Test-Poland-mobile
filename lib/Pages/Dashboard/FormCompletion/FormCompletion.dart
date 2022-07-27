@@ -78,6 +78,19 @@ class _FormCompletionState extends State<FormCompletion> {
     _timer.cancel();
     _questionTimer = 0;
     _loopTimer.cancel();
+    _completedFormModel.questions.forEach((element) {
+      print("DISP: ${element.selectedOptions}");
+      element.selectedOptions = [];
+    });
+    _filtredQuestionaryModel.questions.forEach((element) {
+      if (element.type == QuestionaryFieldAbstract.multipleChoise) {
+        var multipleChoiseFormField = element as MultipleChoiseFormField;
+        multipleChoiseFormField.isOtherOptionSelected = false;
+        if (multipleChoiseFormField.isHasOtherOption) {
+          element.optionsControllers.last.textController.text = "";
+        }
+      }
+    });
     super.dispose();
   }
 
@@ -131,7 +144,9 @@ class _FormCompletionState extends State<FormCompletion> {
                                   --_currentCompletedQuestionId;
                                 });
                               })),
-                      visible: _currentQuestionId != 0,
+                      visible: _currentQuestionId != 0 &&
+                          _filtredQuestionaryModel.questions[_currentQuestionId]
+                              .isBackButtonAvailable,
                     ),
                     Align(
                         alignment: FractionalOffset.bottomRight,
@@ -239,8 +254,10 @@ class _FormCompletionState extends State<FormCompletion> {
               1;
           for (var i = 0; i < count + 1; i++) {
             print("$_currentCompletedQuestionId = $i = $_currentQuestionId");
-            _completedFormModel
-                .questions[_currentCompletedQuestionId - i].isSoFast = false;
+            if (_currentCompletedQuestionId - i >= 0) {
+              _completedFormModel
+                  .questions[_currentCompletedQuestionId - i].isSoFast = false;
+            }
           }
         } else {
           _completedFormModel.questions[_currentCompletedQuestionId].isSoFast =
@@ -677,6 +694,10 @@ class _FormCompletionState extends State<FormCompletion> {
                 bottomLeft: _containerCornerRadius,
                 bottomRight: _containerCornerRadius)),
         child: Column(mainAxisSize: MainAxisSize.min, children: [
+          Padding(
+              padding: EdgeInsets.all(_formPadding / 2),
+              child: Text(questionary.questionsControllers[index].text,
+                  style: TextStyle(fontSize: 12, color: Colors.black))),
           Row(mainAxisAlignment: MainAxisAlignment.spaceEvenly, children: [
             for (var item in questionary.optionsControllers)
               Expanded(
@@ -707,11 +728,7 @@ class _FormCompletionState extends State<FormCompletion> {
                           }
                         });
                       }))
-          ]),
-          Padding(
-              padding: EdgeInsets.all(_formPadding / 2),
-              child: Text(questionary.questionsControllers[index].text,
-                  style: TextStyle(fontSize: 12, color: Colors.black)))
+          ])
         ]));
   }
 
@@ -729,11 +746,14 @@ class _FormCompletionState extends State<FormCompletion> {
       print(_completedFormModel.minPoints);
       print(_completedFormModel.getPoints());
       print(_completedFormModel.isSuspicious());
-      if (_completedFormModel.isSuspicious() &&
-          _completedFormModel.message.isNotEmpty &&
-          _completedFormModel.message != "null") {
-        alertController.showMessageDialogWithAction(context,
-            ProjectStrings.alertTitle, _completedFormModel.message, false, () {
+      if ((_completedFormModel.isSuspicious() &&
+              _completedFormModel.message.isNotEmpty &&
+              _completedFormModel.message != "null") ||
+          (_filtredQuestionaryModel.isMessageNeedAlways &&
+              _completedFormModel.message.isNotEmpty &&
+              _completedFormModel.message != "null")) {
+        alertController.showMessageDialogWithAction(
+            context, "", _completedFormModel.message, false, () {
           _sendCompliteFormRequest();
         });
       } else {

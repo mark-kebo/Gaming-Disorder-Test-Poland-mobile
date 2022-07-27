@@ -8,6 +8,7 @@ import 'package:gdt/Helpers/Strings.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 import 'package:gdt/Pages/Login/login.dart';
 import 'package:gdt/Helpers/Alert.dart';
+import 'package:intl/intl.dart';
 
 FirebaseFirestore firestore = FirebaseFirestore.instance;
 
@@ -28,6 +29,8 @@ class _SettingsState extends State<AppSettings> {
   double _fieldPadding = 8.0;
   bool _isShowLoading = false;
   String userCollectionId = "";
+  String _dateTimeMMss = "yyyy-MM-dd HH:mm:ss";
+  bool _isTimerStarted = false;
 
   _SettingsState() {
     _prepareViewData();
@@ -42,6 +45,8 @@ class _SettingsState extends State<AppSettings> {
                 if (user["id"] == _auth.currentUser.uid) {
                   _nameController.text = user["name"];
                   userCollectionId = user.id;
+                  _isTimerStarted = (user["stopTimerDate"] ?? "").isEmpty &&
+                      (user["startTimerDate"] ?? "").isNotEmpty;
                 }
               })
             })
@@ -85,6 +90,55 @@ class _SettingsState extends State<AppSettings> {
                       mainAxisSize: MainAxisSize.max,
                       mainAxisAlignment: MainAxisAlignment.end,
                       children: <Widget>[
+                        Padding(
+                            padding: EdgeInsets.only(top: _formPadding),
+                            child: SizedBox(
+                              width: double.infinity,
+                              child: FlatButton(
+                                color: _isTimerStarted
+                                    ? Colors.redAccent
+                                    : Colors.greenAccent,
+                                shape: RoundedRectangleBorder(
+                                  borderRadius: BorderRadius.circular(32.0),
+                                ),
+                                onPressed: () async {
+                                  _usersCollection
+                                      .get()
+                                      .then((QuerySnapshot querySnapshot) => {
+                                            querySnapshot.docs.forEach((user) {
+                                              if (user["id"] ==
+                                                  _auth.currentUser.uid) {
+                                                bool isTimerStarted =
+                                                    (user["stopTimerDate"] ??
+                                                                "")
+                                                            .isEmpty &&
+                                                        (user["startTimerDate"] ??
+                                                                "")
+                                                            .isNotEmpty;
+                                                if (isTimerStarted) {
+                                                  _stopTimerAction();
+                                                } else {
+                                                  _startTimerAction();
+                                                }
+                                              }
+                                            })
+                                          });
+                                },
+                                child: Padding(
+                                  padding: EdgeInsets.only(
+                                      left: _formPadding,
+                                      right: _formPadding,
+                                      top: _fieldPadding * 2,
+                                      bottom: _fieldPadding * 2),
+                                  child: Text(
+                                      _isTimerStarted
+                                          ? ProjectStrings.stopTimer
+                                          : ProjectStrings.startTimer,
+                                      style: TextStyle(
+                                          fontSize: 18, color: Colors.white)),
+                                ),
+                              ),
+                            )),
                         Padding(
                             padding: EdgeInsets.only(top: _formPadding),
                             child: _isShowLoading
@@ -190,6 +244,36 @@ class _SettingsState extends State<AppSettings> {
               setState(() {
                 _isShowLoading = false;
               })
+            });
+  }
+
+  void _startTimerAction() async {
+    _usersCollection
+        .doc(userCollectionId)
+        .update({
+          'stopTimerDate': "",
+          'startTimerDate': DateFormat(_dateTimeMMss).format(DateTime.now())
+        })
+        .then((value) => setState(() {
+              _isTimerStarted = true;
+            }))
+        .catchError((error) => {
+              alertController.showMessageDialog(
+                  context, ProjectStrings.error, error),
+            });
+  }
+
+  void _stopTimerAction() async {
+    _usersCollection
+        .doc(userCollectionId)
+        .update(
+            {'stopTimerDate': DateFormat(_dateTimeMMss).format(DateTime.now())})
+        .then((value) => setState(() {
+              _isTimerStarted = false;
+            }))
+        .catchError((error) => {
+              alertController.showMessageDialog(
+                  context, ProjectStrings.error, error),
             });
   }
 

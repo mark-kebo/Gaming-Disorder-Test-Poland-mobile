@@ -39,16 +39,16 @@ class ProjectStrings {
   static const statistics = "Statystyki";
   static const anyError = "Coś poszło nie tak";
   static const allForms = "Wszystkie Ankiety";
-  static const userGroups = "Grupy użytkowników";
+  static const userGroups = "Badania";
   static const allUsers = "Wszyscy użytkownicy";
   static const edit = "Edytuj";
   static const delete = "Usuń";
   static const deleteForm = "Usuń ankietę";
   static const deleteFormQuestion = "Czy na pewno chcesz usunąć tę ankietę?";
   static const deleteFormError = "Nie udało się usunąć ankiety";
-  static const deleteGroup = "Usuń grupę";
-  static const deleteGroupQuestion = "Czy na pewno chcesz usunąć tę grupę?";
-  static const deleteGroupError = "Nie udało się usunąć grupy";
+  static const deleteGroup = "Usuń badanie";
+  static const deleteGroupQuestion = "Czy na pewno chcesz usunąć badanie?";
+  static const deleteGroupError = "Nie udało się usunąć badanie";
   static const form = "Ankieta";
   static const addNewField = "Dodaj nowe pole";
   static const noFields = "Nie dodano jeszcze żadnych pól";
@@ -63,13 +63,13 @@ class ProjectStrings {
   static const formName = "Wpisz nazwę ankiety";
   static const descriptionRequired = "Wymagany jest opis";
   static const formDescription = "Wpisz opis ankiety";
-  static const selectedGroup = "Wybrana grupa: ";
+  static const selectedGroup = "Wybrane badanie: ";
   static const selectKeyQuestion = "Wybierz kluczowe pytanie:   ";
   static const selectKeyAnswer = "Wybierz kluczową odpowiedź:   ";
   static const selectFieldType = "Proszę wybrać rodzaj pola";
-  static const group = "Grupa";
+  static const group = "Badanie";
   static const users = "Użytkownicy";
-  static const groupExists = "Taka grupa już istnieje";
+  static const groupExists = "Badanie już istnieje";
   static const emptyStatistycs = "Brak statystyk dla tej ankiety";
   static const contact = "Dane kontaktowe:";
   static const phoneNumber = "Numer telefonu";
@@ -82,5 +82,7 @@ class ProjectStrings {
   static const alertTitle = "Uwaga";
   static const pushAlertMessage =
       "Pamiętaj o włączeniu powiadomień PUSH w ustawieniach telefonu. Jest to niezbędny warunek brania udziału w badaniach.";
-  static const randomGroup = "Losowa";
+  static const emptyGroup = "Nie wybrano badania";
+  static const startTimer = "Uruchamianie stopera";
+  static const stopTimer = "Zatrzymanie stopera";
 }

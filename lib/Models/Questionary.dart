@@ -15,6 +15,7 @@ class QuestionaryModel {
   String message = "";
   String minPointsToMessage = "";
   bool isHasCheckList = false;
+  bool isMessageNeedAlways = false;
 
   CheckListQuestionaryField checkList;
   List<QuestionaryFieldType> questions = <QuestionaryFieldType>[];
@@ -30,6 +31,8 @@ class QuestionaryModel {
       groupId = snapshot.data()["groupId"];
       groupName = snapshot.data()["groupName"];
       checkList = CheckListQuestionaryField(snapshot.data()["checkList"]);
+      isMessageNeedAlways = snapshot.data()["isMessageNeedAlways"] ?? false;
+
       initQuestions(snapshot);
     }
   }
@@ -45,6 +48,7 @@ class QuestionaryModel {
     this.checkList = questionary.checkList;
     this.isHasCheckList = questionary.isHasCheckList;
     this.questions = questionary.questions.map((e) => e).toList();
+    this.isMessageNeedAlways = questionary.isMessageNeedAlways;
   }
 
   void initQuestions(DocumentSnapshot snapshot) {
@@ -92,6 +96,7 @@ abstract class QuestionaryFieldType {
   QuestionaryFieldAbstract type;
   String key;
   String name;
+  bool isBackButtonAvailable = true;
   String instructions;
   TextEditingController questionController;
   List<QuestionaryFieldOption> optionsControllers;
@@ -150,11 +155,13 @@ class LikertScaleFormField extends QuestionaryFieldType {
       } else {
         image = Uint8List(0);
       }
+      isBackButtonAvailable = item['isBackButtonAvailable'] ?? true;
     }
   }
 
   Map itemsList() {
     return {
+      "isBackButtonAvailable": isBackButtonAvailable,
       "image": String.fromCharCodes(this.image),
       "instructions": this.instructions,
       "key": this.key,
@@ -196,11 +203,13 @@ class DragAndDropFormField extends QuestionaryFieldType {
       } else {
         image = Uint8List(0);
       }
+      isBackButtonAvailable = item['isBackButtonAvailable'] ?? true;
     }
   }
 
   Map itemsList() {
     return {
+      "isBackButtonAvailable": isBackButtonAvailable,
       "image": String.fromCharCodes(this.image),
       "instructions": this.instructions,
       "key": this.key,
@@ -247,11 +256,13 @@ class MatrixFormField extends QuestionaryFieldType {
       } else {
         image = Uint8List(0);
       }
+      isBackButtonAvailable = item['isBackButtonAvailable'] ?? true;
     }
   }
 
   Map itemsList() {
     return {
+      "isBackButtonAvailable": isBackButtonAvailable,
       "image": String.fromCharCodes(this.image),
       "instructions": this.instructions,
       "key": this.key,
@@ -298,11 +309,13 @@ class ParagraphFormField extends QuestionaryFieldType {
       } else {
         image = Uint8List(0);
       }
+      isBackButtonAvailable = item['isBackButtonAvailable'] ?? true;
     }
   }
 
   Map itemsList() {
     return {
+      "isBackButtonAvailable": isBackButtonAvailable,
       "image": String.fromCharCodes(this.image),
       "instructions": this.instructions,
       "key": this.key,
@@ -372,11 +385,13 @@ class MultipleChoiseFormField extends QuestionaryFieldType {
       } else {
         image = Uint8List(0);
       }
+      isBackButtonAvailable = item['isBackButtonAvailable'] ?? true;
     }
   }
 
   Map itemsList() {
     return {
+      "isBackButtonAvailable": isBackButtonAvailable,
       "isHasOtherOption": isHasOtherOption,
       "image": String.fromCharCodes(this.image),
       "instructions": this.instructions,
@@ -421,11 +436,13 @@ class SingleChoiseFormField extends QuestionaryFieldType {
       } else {
         image = Uint8List(0);
       }
+      isBackButtonAvailable = item['isBackButtonAvailable'] ?? true;
     }
   }
 
   Map itemsList() {
     return {
+      "isBackButtonAvailable": isBackButtonAvailable,
       "image": String.fromCharCodes(this.image),
       "instructions": this.instructions,
       "key": this.key,
@@ -472,11 +489,13 @@ class SliderFormField extends QuestionaryFieldType {
       } else {
         image = Uint8List(0);
       }
+      isBackButtonAvailable = item['isBackButtonAvailable'] ?? true;
     }
   }
 
   Map itemsList() {
     return {
+      "isBackButtonAvailable": isBackButtonAvailable,
       "image": String.fromCharCodes(this.image),
       "instructions": this.instructions,
       "key": this.key,

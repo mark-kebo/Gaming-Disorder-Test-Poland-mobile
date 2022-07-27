@@ -143,11 +143,7 @@ class _CreateAccountFormState extends State<CreateAccountForm> {
                                   });
                                 })));
                   },
-                  child: Text(
-                      ProjectStrings.selectedGroup +
-                          (groupName.isEmpty
-                              ? ProjectStrings.randomGroup
-                              : groupName),
+                  child: Text(ProjectStrings.selectedGroup + groupName,
                       style: TextStyle(
                           fontSize: 16,
                           fontWeight: FontWeight.bold,
@@ -164,7 +160,14 @@ class _CreateAccountFormState extends State<CreateAccountForm> {
                       ),
                       onPressed: () async {
                         if (_formKey.currentState.validate()) {
-                          _createAccountAction();
+                          if (groupName.isEmpty) {
+                            alertController.showMessageDialog(
+                                context,
+                                ProjectStrings.error,
+                                ProjectStrings.emptyGroup);
+                          } else {
+                            _createAccountAction();
+                          }
                         }
                       },
                       child: Padding(
@@ -212,7 +215,9 @@ class _CreateAccountFormState extends State<CreateAccountForm> {
       );
       _users.add({
         'name': _nameController.text,
-        "id": _auth.currentUser.uid
+        "id": _auth.currentUser.uid,
+        'stopTimerDate': "",
+        'startTimerDate': ""
       }).catchError((error) => alertController.showMessageDialog(
           context, ProjectStrings.error, error.message));
       _updateUserGroups(_auth.currentUser.uid);
@@ -235,26 +240,16 @@ class _CreateAccountFormState extends State<CreateAccountForm> {
       _isShowLoading = true;
     });
     String groupId = "";
-    String randomGroupId = "";
-    String firstGroupId = "";
     _userGroups
         .get()
         .then((value) => value.docs.forEach((element) => {
               print(element),
-              if (element["name"] == groupName) {groupId = element.id},
-              if (firstGroupId.isEmpty) {firstGroupId = element.id},
-              if (Random().nextBool()) {randomGroupId = element.id}
+              if (element["name"] == groupName) {groupId = element.id}
             }))
         .whenComplete(() => {
-              groupId.isEmpty
-                  ? _userGroups
-                      .doc(randomGroupId.isEmpty ? firstGroupId : randomGroupId)
-                      .update({
-                      'selectedUsers': FieldValue.arrayUnion([userId])
-                    })
-                  : _userGroups.doc(groupId).update({
-                      'selectedUsers': FieldValue.arrayUnion([userId])
-                    })
+              _userGroups.doc(groupId).update({
+                'selectedUsers': FieldValue.arrayUnion([userId])
+              })
             });
   }
 }
